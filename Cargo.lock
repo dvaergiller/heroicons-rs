@@ -3,6 +3,17 @@
 version = 4
 
 [[package]]
+name = "heroicons"
+version = "0.1.0"
+dependencies = [
+ "hypertext",
+ "prettyplease",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "html-escape"
 version = "0.2.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -30,17 +41,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c120534b9d41bd317a5b111aacc38a34071d15df9462c0e21f6093ade3a03660"
 dependencies = [
  "html-escape",
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "hypertext_heroicons"
-version = "0.1.0"
-dependencies = [
- "hypertext",
- "prettyplease",
  "proc-macro2",
  "quote",
  "syn",
