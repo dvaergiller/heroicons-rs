@@ -1,0 +1,13 @@
+[package]
+name = "hypertext_heroicons"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+hypertext = "0.12.1"
+
+[build-dependencies]
+prettyplease = "0.2.37"
+proc-macro2 = "1.0.101"
+quote = { version = "1.0.40", default-features = false }
+syn = "2.0.106"
