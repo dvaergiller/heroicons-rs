@@ -1,7 +1,7 @@
 #[cfg(feature = "hypertext")]
 mod hypertext_tests {
     use heroicons::hypertext::*;
-    use hypertext::{rsx, maud, Renderable};
+    use hypertext::prelude::*;
 
     #[test]
     fn test_hypertext_functions_return_raw() {
@@ -102,6 +102,35 @@ mod hypertext_tests {
 
         // 16px icons (micro)
         assert!(home_micro().as_str().contains("viewBox=\"0 0 16 16\""));
+    }
+
+    #[test]
+    fn test_rsx_macro_with_multiple_heroicons() {
+        let navigation = rsx! {
+            <nav class="nav">
+                <div><HomeOutline /></div>
+                <div><EnvelopeOutline /></div>
+                <div><ShoppingCartOutline /></div>
+            </nav>
+        };
+
+        let _rendered = navigation.render();
+        assert!(true);
+    }
+
+    #[test]
+    fn test_maud_macro_with_multiple_heroicons() {
+        let navigation = maud! {
+            nav class="navigation" {
+                div { HomeOutline; }
+                div { EnvelopeOutline; }
+                div { ShoppingCartOutline; }
+                div { UserPlusOutline; }
+            }
+        };
+
+        let _rendered = navigation.render();
+        assert!(true);
     }
 }
 
