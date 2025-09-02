@@ -1,3 +1,5 @@
+#![doc = include_str!("../README.md")]
+
 #![feature(doc_cfg)]
 
 pub mod strings;
