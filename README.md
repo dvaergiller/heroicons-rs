@@ -45,7 +45,7 @@ Then use the component functions with the `rsx!` macro:
 
 ```rust
 use heroicons::hypertext::*;
-use hypertext::rsx;
+use hypertext::{rsx, Renderable};
 
 let page = rsx! {
     <div>
@@ -59,7 +59,7 @@ Or with the `maud!` macro:
 
 ```rust
 use heroicons::hypertext::*;
-use hypertext::maud;
+use hypertext::{maud, Renderable};
 
 let page = maud! {
     div {
