@@ -27,6 +27,7 @@ fn main() {
     hypertext::write_heroicons_file(&icon_index);
 
     println!("cargo::rerun-if-changed=.gitmodules");
+    println!("cargo::rerun-if-changed=heroicons");
     println!("cargo::rerun-if-changed=build.rs");
 }
 
