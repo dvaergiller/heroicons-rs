@@ -13,6 +13,12 @@ struct IconEntry {
 }
 
 fn main() {
+    // std::fs::create_dir_all("heroicons").unwrap();
+    std::process::Command::new("git")
+        .args(["submodule", "update"])
+        .output()
+        .unwrap();
+
     let mut icon_index: HashMap<String, IconEntry> = HashMap::default();
     svg_files().for_each(|path| insert_svg(&path, &mut icon_index));
     icon_strings::write_strings_file(&icon_index);
@@ -21,7 +27,6 @@ fn main() {
     hypertext::write_heroicons_file(&icon_index);
 
     println!("cargo::rerun-if-changed=.gitmodules");
-    println!("cargo::rerun-if-changed=heroicons");
     println!("cargo::rerun-if-changed=build.rs");
 }
 
