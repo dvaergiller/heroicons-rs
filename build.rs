@@ -155,6 +155,7 @@ mod hypertext {
         quote! {
             /// Generated code. Do not edit.
             use hypertext::{component, Raw};
+            use crate::strings::*;
         }
     }
 
