@@ -1,6 +1,11 @@
-use std::{io::Write, collections::HashMap, ffi::OsStr, path::{Path, PathBuf}};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
+use std::{
+    collections::HashMap,
+    ffi::OsStr,
+    io::Write,
+    path::{Path, PathBuf},
+};
 
 static ICONS_ROOT: &str = "heroicons/optimized";
 
@@ -47,21 +52,18 @@ fn insert_svg(path: PathBuf, index: &mut IconIndex) {
     let components = path
         .components()
         .rev()
-        .map(|component| {
-            component.as_os_str().to_string_lossy().into_owned()
-        })
+        .map(|component| component.as_os_str().to_string_lossy().into_owned())
         .collect::<Vec<String>>();
     let type_string = &components[1];
     let size_string = &components[2];
 
-    let variant =
-        match (type_string.as_str(), size_string.as_str()) {
-            ("outline", "24") => "Outline",
-            ("solid", "24") => "Solid",
-            ("solid", "20") => "Mini",
-            ("solid", "16") => "Micro",
-            _ => panic!("Unexpected folder structure: {path:?}")
-        };
+    let variant = match (type_string.as_str(), size_string.as_str()) {
+        ("outline", "24") => "Outline",
+        ("solid", "24") => "Solid",
+        ("solid", "20") => "Mini",
+        ("solid", "16") => "Micro",
+        _ => panic!("Unexpected folder structure: {path:?}"),
+    };
     index.0.insert((name, variant.to_string()), path);
 }
 
@@ -78,12 +80,10 @@ fn to_icon_name(path: &Path) -> Option<String> {
     };
 
     if path.extension() == Some(OsStr::new("svg")) {
-        path
-            .file_stem()
+        path.file_stem()
             .map(|stem| stem.to_string_lossy().into_owned())
             .map(to_pascal_case)
-    }
-    else {
+    } else {
         None
     }
 }
@@ -92,8 +92,7 @@ pub mod parser {
     use tl::{ParserOptions, VDom};
 
     pub fn parse<'a>(input: &'a str) -> VDom<'a> {
-        tl::parse(input, ParserOptions::default())
-            .expect("Failed to parse icon file")
+        tl::parse(input, ParserOptions::default()).expect("Failed to parse icon file")
     }
 }
 
@@ -103,9 +102,11 @@ mod icon_names {
     const NAMES_FILENAME: &str = "src/generated_icon_names.rs";
 
     pub fn generate(index: &IconIndex) {
-        let mut names = index.0
+        let mut names = index
+            .0
             .keys()
-            .map(|(name, _)| name).collect::<Vec<&String>>();
+            .map(|(name, _)| name)
+            .collect::<Vec<&String>>();
         names.sort();
         names.dedup();
         let tokens = icon_names_code(names);
@@ -124,7 +125,6 @@ mod icon_names {
             }
         }
     }
-
 }
 
 mod from_icon_impl {
@@ -145,7 +145,8 @@ mod from_icon_impl {
     }
 
     fn tokens(index: &IconIndex) -> TokenStream {
-        let case_tokens = index.0
+        let case_tokens = index
+            .0
             .iter()
             .map(|((name, variant), path)| impl_code(name, variant, path));
         quote! {
@@ -180,24 +181,24 @@ mod from_icon_impl {
     }
 
     fn svg_code(name: &Name, variant: &Variant, svg: VDom) -> TokenStream {
-        let &[svg_handle] = svg.children()
-            else { panic!("Multiple top-level elements in SVG file") };
-        let svg_node = svg_handle
-            .get(svg.parser())
-            .unwrap()
-            .as_tag()
-            .unwrap();
+        let &[svg_handle] = svg.children() else {
+            panic!("Multiple top-level elements in SVG file")
+        };
+        let svg_node = svg_handle.get(svg.parser()).unwrap().as_tag().unwrap();
         assert_eq!(svg_node.name(), "svg");
 
         let name_ident = format_ident!("{name}");
         let variant_ident = format_ident!("{variant}");
-        let attributes = svg_node.attributes().iter().map(attr_code).collect::<Vec<TokenStream>>();
-        let children =
-            svg_node
-                .children()
-                .all(svg.parser())
-                .iter()
-                .filter_map(child_elem_code);
+        let attributes = svg_node
+            .attributes()
+            .iter()
+            .map(attr_code)
+            .collect::<Vec<TokenStream>>();
+        let children = svg_node
+            .children()
+            .all(svg.parser())
+            .iter()
+            .filter_map(child_elem_code);
         quote! {
             (IconName::#name_ident, Variant::#variant_ident) =>
                 Svg {
@@ -210,7 +211,11 @@ mod from_icon_impl {
     fn child_elem_code(child: &Node) -> Option<TokenStream> {
         let child_node = child.as_tag()?;
         let tag_name = child_node.name().as_utf8_str();
-        let attrs = child_node.attributes().iter().map(attr_code).collect::<Vec<TokenStream>>();
+        let attrs = child_node
+            .attributes()
+            .iter()
+            .map(attr_code)
+            .collect::<Vec<TokenStream>>();
         Some(quote! {
             SvgChild {
                 tag_name: #tag_name,

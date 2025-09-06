@@ -1,5 +1,4 @@
 #![doc = include_str!("../README.md")]
-
 #![feature(doc_cfg)]
 
 mod generated_icon_names;
@@ -16,7 +15,6 @@ pub(crate) mod svg;
 pub struct Icon {
     pub name: IconName,
     pub variant: Option<Variant>,
-
     // Need better support for optional fields for this
     // pub id: Option<String>,
     // pub class: Option<String>,
