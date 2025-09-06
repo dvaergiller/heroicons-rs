@@ -147,7 +147,6 @@ mod from_icon_impl {
     fn tokens(index: &IconIndex) -> TokenStream {
         let case_tokens = index.0
             .iter()
-            .take(3)
             .map(|((name, variant), path)| impl_code(name, variant, path));
         quote! {
             /// Generated code. Do not edit.
