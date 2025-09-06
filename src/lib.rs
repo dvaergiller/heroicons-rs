@@ -3,6 +3,8 @@
 #![feature(doc_cfg)]
 
 mod generated_icon_names;
+use std::fmt::{self, Display, Formatter};
+
 pub use generated_icon_names::IconName;
 
 #[cfg(feature = "hypertext")]
@@ -21,9 +23,9 @@ pub struct Icon {
     // pub style: Option<String>,
 }
 
-impl ToString for Icon {
-    fn to_string(&self) -> String {
-        svg::Svg::from(self).to_string()
+impl Display for Icon {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        svg::Svg::from(self).fmt(f)
     }
 }
 

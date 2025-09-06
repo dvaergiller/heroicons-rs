@@ -26,12 +26,12 @@ fn main() {
     println!("cargo::rerun-if-changed=build.rs");
 }
 
-/// SVG search and indexing:
+// SVG search and indexing:
 
 fn svg_files() -> impl Iterator<Item = PathBuf> {
     get_dir_entries(PathBuf::from(ICONS_ROOT))
-        .flat_map(|size_dir| get_dir_entries(size_dir))
-        .flat_map(|format_dir| get_dir_entries(format_dir))
+        .flat_map(get_dir_entries)
+        .flat_map(get_dir_entries)
         .filter(|svg_path| svg_path.extension() == Some(OsStr::new("svg")))
 }
 
@@ -92,7 +92,7 @@ pub mod parser {
     use tl::{ParserOptions, VDom};
 
     pub fn parse<'a>(input: &'a str) -> VDom<'a> {
-        tl::parse(&input, ParserOptions::default())
+        tl::parse(input, ParserOptions::default())
             .expect("Failed to parse icon file")
     }
 }
@@ -115,7 +115,7 @@ mod icon_names {
         output_file.write_all(formatted.as_bytes()).unwrap();
     }
 
-    pub fn icon_names_code<'a>(enum_names: Vec<&'a String>) -> TokenStream {
+    pub fn icon_names_code(enum_names: Vec<&String>) -> TokenStream {
         let names = enum_names.iter().map(|name| format_ident!("{}", name));
         quote! {
             #[derive(Clone, Copy, Debug, PartialEq)]
@@ -136,7 +136,7 @@ mod from_icon_impl {
 
     const OUTPUT_FILENAME: &str = "src/svg/generated_from_icon_impl.rs";
 
-    pub fn generate<'a>(index: &IconIndex) {
+    pub fn generate(index: &IconIndex) {
         let tokens = tokens(index);
         let syntax_tree = syn::parse_file(&tokens.to_string()).unwrap();
         let formatted = prettyplease::unparse(&syntax_tree);

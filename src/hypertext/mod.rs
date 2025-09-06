@@ -16,7 +16,7 @@ impl Renderable for Icon {
 }
 
 fn format_attr(&Attribute(name, val): &Attribute, buf_str: &mut String) {
-    buf_str.push_str(&format!(" {}=\"{}\"", name, val));
+    buf_str.push_str(&format!(" {name}=\"{val}\""));
 }
 
 fn format_child(child: &SvgChild, buf_str: &mut String) {

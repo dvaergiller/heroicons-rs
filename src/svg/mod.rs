@@ -1,3 +1,5 @@
+use std::fmt::{self, Display, Formatter};
+
 mod generated_from_icon_impl;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -6,14 +8,14 @@ pub struct Svg {
     pub children: &'static [SvgChild],
 }
 
-impl ToString for Svg {
-    fn to_string(&self) -> String {
+impl Display for Svg {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         let mut output = "<svg ".to_string();
         self.attrs.iter().for_each(|a| output.push_str(&a.to_string()));
-        output.push_str(">");
+        output.push('>');
         self.children.iter().for_each(|c| output.push_str(&c.to_string()));
         output.push_str("</svg>");
-        output
+        f.write_str(&output)
     }
 }
 
@@ -23,23 +25,23 @@ pub struct SvgChild {
     pub attrs: &'static [Attribute],
 }
 
-impl ToString for SvgChild {
-    fn to_string(&self) -> String {
+impl Display for SvgChild {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         let mut output = format!("<{}", self.tag_name);
         self.attrs
             .iter()
             .for_each(|a| output.push_str(&a.to_string()));
         output.push_str(" />");
-        output
+        f.write_str(&output)
     }
 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Attribute(pub &'static str, pub &'static str);
 
-impl ToString for Attribute {
-    fn to_string(&self) -> String {
+impl Display for Attribute {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         let Attribute(name, value) = self;
-        format!(" {name}=\"{value}\"")
+        f.write_fmt(format_args!("{name}=\"{value}\""))
     }
 }
