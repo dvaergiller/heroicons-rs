@@ -6,7 +6,6 @@ mod generated_icon_names;
 pub use generated_icon_names::IconName;
 
 #[cfg(feature = "hypertext")]
-#[doc(cfg(feature = "hypertext"))]
 pub mod hypertext;
 
 pub(crate) mod svg;
@@ -28,16 +27,11 @@ impl ToString for Icon {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub enum Variant {
+    #[default]
     Outline,
     Solid,
     Mini,
     Micro,
-}
-
-impl Default for Variant {
-    fn default() -> Variant {
-        Variant::Outline
-    }
 }
