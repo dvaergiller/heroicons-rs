@@ -1,3 +1,4 @@
 /target
-/src/strings.rs
-/src/hypertext.rs
+/src/generated_icon_names.rs
+/src/generated_from_icon_impl.rs
+
