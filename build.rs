@@ -165,9 +165,6 @@ mod from_icon_impl {
                         _ => Svg::from(&Icon {
                             name: IconName::QuestionMarkCircle,
                             variant: None,
-                            id: None,
-                            class: None,
-                            style: None,
                         })
                     }
                 }

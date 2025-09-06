@@ -15,9 +15,11 @@ pub mod hypertext;
 pub struct Icon {
     pub name: IconName,
     pub variant: Option<Variant>,
-    pub id: Option<String>,
-    pub class: Option<String>,
-    pub style: Option<String>,
+
+    // Need better support for optional fields for this
+    // pub id: Option<String>,
+    // pub class: Option<String>,
+    // pub style: Option<String>,
 }
 
 #[derive(Clone, Copy, Debug)]
