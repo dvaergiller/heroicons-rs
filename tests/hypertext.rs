@@ -5,18 +5,12 @@ mod hypertext_tests {
 
     #[test]
     fn test_hypertext_icons_render_correctly() {
-        let home_icon = Icon {
-            name: IconName::Home,
-            variant: Some(Variant::Outline),
-        };
-        let check_icon = Icon {
-            name: IconName::CheckCircle,
-            variant: Some(Variant::Solid),
-        };
-        let envelope_icon = Icon {
-            name: IconName::Envelope,
-            variant: Some(Variant::Mini),
-        };
+        let home_icon =
+            Icon { name: IconName::Home, variant: Some(Variant::Outline) };
+        let check_icon =
+            Icon { name: IconName::CheckCircle, variant: Some(Variant::Solid) };
+        let envelope_icon =
+            Icon { name: IconName::Envelope, variant: Some(Variant::Mini) };
         let cart_icon = Icon {
             name: IconName::ShoppingCart,
             variant: Some(Variant::Micro),
@@ -36,10 +30,8 @@ mod hypertext_tests {
 
     #[test]
     fn test_icon_attributes_applied_correctly() {
-        let home_icon = Icon {
-            name: IconName::Home,
-            variant: Some(Variant::Outline),
-        };
+        let home_icon =
+            Icon { name: IconName::Home, variant: Some(Variant::Outline) };
 
         let rendered = home_icon.render().into_inner();
 
@@ -53,10 +45,7 @@ mod hypertext_tests {
         let icons = vec![
             (
                 "home_outline",
-                Icon {
-                    name: IconName::Home,
-                    variant: Some(Variant::Outline),
-                },
+                Icon { name: IconName::Home, variant: Some(Variant::Outline) },
             ),
             (
                 "check_circle_solid",
@@ -67,10 +56,7 @@ mod hypertext_tests {
             ),
             (
                 "envelope_mini",
-                Icon {
-                    name: IconName::Envelope,
-                    variant: Some(Variant::Mini),
-                },
+                Icon { name: IconName::Envelope, variant: Some(Variant::Mini) },
             ),
             (
                 "shopping_cart_micro",
@@ -114,85 +100,49 @@ mod hypertext_tests {
     #[test]
     fn test_all_icon_variants_available() {
         // Test that all variants are available for common icons
-        let _home_outline = Icon {
-            name: IconName::Home,
-            variant: Some(Variant::Outline),
-        };
-        let _home_solid = Icon {
-            name: IconName::Home,
-            variant: Some(Variant::Solid),
-        };
-        let _home_mini = Icon {
-            name: IconName::Home,
-            variant: Some(Variant::Mini),
-        };
-        let _home_micro = Icon {
-            name: IconName::Home,
-            variant: Some(Variant::Micro),
-        };
+        let _home_outline =
+            Icon { name: IconName::Home, variant: Some(Variant::Outline) };
+        let _home_solid =
+            Icon { name: IconName::Home, variant: Some(Variant::Solid) };
+        let _home_mini =
+            Icon { name: IconName::Home, variant: Some(Variant::Mini) };
+        let _home_micro =
+            Icon { name: IconName::Home, variant: Some(Variant::Micro) };
 
-        let _user_plus_outline = Icon {
-            name: IconName::UserPlus,
-            variant: Some(Variant::Outline),
-        };
-        let _user_plus_solid = Icon {
-            name: IconName::UserPlus,
-            variant: Some(Variant::Solid),
-        };
-        let _user_plus_mini = Icon {
-            name: IconName::UserPlus,
-            variant: Some(Variant::Mini),
-        };
-        let _user_plus_micro = Icon {
-            name: IconName::UserPlus,
-            variant: Some(Variant::Micro),
-        };
+        let _user_plus_outline =
+            Icon { name: IconName::UserPlus, variant: Some(Variant::Outline) };
+        let _user_plus_solid =
+            Icon { name: IconName::UserPlus, variant: Some(Variant::Solid) };
+        let _user_plus_mini =
+            Icon { name: IconName::UserPlus, variant: Some(Variant::Mini) };
+        let _user_plus_micro =
+            Icon { name: IconName::UserPlus, variant: Some(Variant::Micro) };
 
-        let _envelope_outline = Icon {
-            name: IconName::Envelope,
-            variant: Some(Variant::Outline),
-        };
-        let _envelope_solid = Icon {
-            name: IconName::Envelope,
-            variant: Some(Variant::Solid),
-        };
-        let _envelope_mini = Icon {
-            name: IconName::Envelope,
-            variant: Some(Variant::Mini),
-        };
-        let _envelope_micro = Icon {
-            name: IconName::Envelope,
-            variant: Some(Variant::Micro),
-        };
+        let _envelope_outline =
+            Icon { name: IconName::Envelope, variant: Some(Variant::Outline) };
+        let _envelope_solid =
+            Icon { name: IconName::Envelope, variant: Some(Variant::Solid) };
+        let _envelope_mini =
+            Icon { name: IconName::Envelope, variant: Some(Variant::Mini) };
+        let _envelope_micro =
+            Icon { name: IconName::Envelope, variant: Some(Variant::Micro) };
     }
 
     #[test]
     fn test_icon_content_different_between_variants() {
-        let home_outline = Icon {
-            name: IconName::Home,
-            variant: Some(Variant::Outline),
-        };
-        let home_solid = Icon {
-            name: IconName::Home,
-            variant: Some(Variant::Solid),
-        };
-        let home_mini = Icon {
-            name: IconName::Home,
-            variant: Some(Variant::Mini),
-        };
-        let home_micro = Icon {
-            name: IconName::Home,
-            variant: Some(Variant::Micro),
-        };
+        let home_outline =
+            Icon { name: IconName::Home, variant: Some(Variant::Outline) };
+        let home_solid =
+            Icon { name: IconName::Home, variant: Some(Variant::Solid) };
+        let home_mini =
+            Icon { name: IconName::Home, variant: Some(Variant::Mini) };
+        let home_micro =
+            Icon { name: IconName::Home, variant: Some(Variant::Micro) };
 
-        let envelope_outline = Icon {
-            name: IconName::Envelope,
-            variant: Some(Variant::Outline),
-        };
-        let user_plus_solid = Icon {
-            name: IconName::UserPlus,
-            variant: Some(Variant::Solid),
-        };
+        let envelope_outline =
+            Icon { name: IconName::Envelope, variant: Some(Variant::Outline) };
+        let user_plus_solid =
+            Icon { name: IconName::UserPlus, variant: Some(Variant::Solid) };
         let shopping_cart_solid = Icon {
             name: IconName::ShoppingCart,
             variant: Some(Variant::Solid),
@@ -225,14 +175,10 @@ mod hypertext_tests {
 
     #[test]
     fn test_icon_variants_have_correct_attributes() {
-        let home_outline = Icon {
-            name: IconName::Home,
-            variant: Some(Variant::Outline),
-        };
-        let home_solid = Icon {
-            name: IconName::Home,
-            variant: Some(Variant::Solid),
-        };
+        let home_outline =
+            Icon { name: IconName::Home, variant: Some(Variant::Outline) };
+        let home_solid =
+            Icon { name: IconName::Home, variant: Some(Variant::Solid) };
 
         let outline_rendered = home_outline.render().into_inner();
         let solid_rendered = home_solid.render().into_inner();
@@ -248,22 +194,14 @@ mod hypertext_tests {
 
     #[test]
     fn test_icon_sizes_have_correct_viewbox() {
-        let home_outline = Icon {
-            name: IconName::Home,
-            variant: Some(Variant::Outline),
-        };
-        let home_solid = Icon {
-            name: IconName::Home,
-            variant: Some(Variant::Solid),
-        };
-        let home_mini = Icon {
-            name: IconName::Home,
-            variant: Some(Variant::Mini),
-        };
-        let home_micro = Icon {
-            name: IconName::Home,
-            variant: Some(Variant::Micro),
-        };
+        let home_outline =
+            Icon { name: IconName::Home, variant: Some(Variant::Outline) };
+        let home_solid =
+            Icon { name: IconName::Home, variant: Some(Variant::Solid) };
+        let home_mini =
+            Icon { name: IconName::Home, variant: Some(Variant::Mini) };
+        let home_micro =
+            Icon { name: IconName::Home, variant: Some(Variant::Micro) };
 
         // 24px icons (outline/solid)
         assert!(
@@ -273,26 +211,17 @@ mod hypertext_tests {
                 .contains("viewBox=\"0 0 24 24\"")
         );
         assert!(
-            home_solid
-                .render()
-                .into_inner()
-                .contains("viewBox=\"0 0 24 24\"")
+            home_solid.render().into_inner().contains("viewBox=\"0 0 24 24\"")
         );
 
         // 20px icons (mini)
         assert!(
-            home_mini
-                .render()
-                .into_inner()
-                .contains("viewBox=\"0 0 20 20\"")
+            home_mini.render().into_inner().contains("viewBox=\"0 0 20 20\"")
         );
 
         // 16px icons (micro)
         assert!(
-            home_micro
-                .render()
-                .into_inner()
-                .contains("viewBox=\"0 0 16 16\"")
+            home_micro.render().into_inner().contains("viewBox=\"0 0 16 16\"")
         );
     }
 

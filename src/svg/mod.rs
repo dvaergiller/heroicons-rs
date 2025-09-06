@@ -11,13 +11,9 @@ pub struct Svg {
 impl Display for Svg {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         let mut output = "<svg ".to_string();
-        self.attrs
-            .iter()
-            .for_each(|a| output.push_str(&a.to_string()));
+        self.attrs.iter().for_each(|a| output.push_str(&a.to_string()));
         output.push('>');
-        self.children
-            .iter()
-            .for_each(|c| output.push_str(&c.to_string()));
+        self.children.iter().for_each(|c| output.push_str(&c.to_string()));
         output.push_str("</svg>");
         f.write_str(&output)
     }
@@ -32,9 +28,7 @@ pub struct SvgChild {
 impl Display for SvgChild {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         let mut output = format!("<{}", self.tag_name);
-        self.attrs
-            .iter()
-            .for_each(|a| output.push_str(&a.to_string()));
+        self.attrs.iter().for_each(|a| output.push_str(&a.to_string()));
         output.push_str(" />");
         f.write_str(&output)
     }

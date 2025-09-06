@@ -1,5 +1,4 @@
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
 use std::{
     ffi::OsStr,
     io::Write,
@@ -20,7 +19,7 @@ fn main() {
         .output()
         .unwrap();
 
-    let icon_files = svg_files().map(to_svg_file).collect();
+    let icon_files: Vec<IconFile> = svg_files().map(to_svg_file).collect();
     icon_names::generate(&icon_files);
     from_icon_impl::generate(&icon_files);
 
@@ -38,9 +37,7 @@ fn svg_files() -> impl Iterator<Item = PathBuf> {
 }
 
 fn get_dir_entries(path: PathBuf) -> impl Iterator<Item = PathBuf> {
-    std::fs::read_dir(path)
-        .unwrap()
-        .map(|entry| entry.unwrap().path())
+    std::fs::read_dir(path).unwrap().map(|entry| entry.unwrap().path())
 }
 
 fn to_svg_file(svg_file: PathBuf) -> IconFile {
@@ -61,16 +58,14 @@ fn to_svg_file(svg_file: PathBuf) -> IconFile {
         ("solid", "20") => "Mini",
         ("solid", "16") => "Micro",
         _ => panic!("Unexpected folder structure: {svg_file:?}"),
-    }.to_string();
+    }
+    .to_string();
 
-    IconFile{ name, variant, svg_file }
+    IconFile { name, variant, svg_file }
 }
 
 fn to_icon_name(path: &Path) -> String {
-    let stem = path.file_stem()
-        .unwrap()
-        .to_string_lossy()
-        .into_owned();
+    let stem = path.file_stem().unwrap().to_string_lossy().into_owned();
 
     // Convert to PascalCase
     stem.split('-')
@@ -94,15 +89,13 @@ mod icon_names {
     use proc_macro2::TokenStream;
     use quote::{format_ident, quote};
 
-    use crate::{write_src_file, IconFile};
+    use crate::{IconFile, write_src_file};
 
     const NAMES_FILENAME: &str = "src/generated_icon_names.rs";
 
-    pub fn generate(icons: &Vec<IconFile>) {
-        let mut names = icons
-            .iter()
-            .map(|icon| &icon.name)
-            .collect::<Vec<&String>>();
+    pub fn generate(icons: &[IconFile]) {
+        let mut names =
+            icons.iter().map(|icon| &icon.name).collect::<Vec<&String>>();
         names.sort();
         names.dedup();
         write_src_file(icon_names_code(names), NAMES_FILENAME);
@@ -122,17 +115,19 @@ mod icon_names {
 mod from_icon_impl {
     use std::{borrow::Cow, fs::read_to_string};
 
+    use proc_macro2::TokenStream;
+    use quote::{format_ident, quote};
     use tl::{Node, ParserOptions};
 
-    use super::*;
+    use crate::{IconFile, write_src_file};
 
     const FROM_ICON_IMPL_FILENAME: &str = "src/svg/generated_from_icon_impl.rs";
 
-    pub fn generate(icons: &Vec<IconFile>) {
+    pub fn generate(icons: &[IconFile]) {
         write_src_file(tokens(icons), FROM_ICON_IMPL_FILENAME);
     }
 
-    fn tokens(icons: &Vec<IconFile>) -> TokenStream {
+    fn tokens(icons: &[IconFile]) -> TokenStream {
         let case_tokens = icons.iter().map(svg_code);
         quote! {
             /// Generated code. Do not edit.
@@ -161,7 +156,7 @@ mod from_icon_impl {
 
     fn svg_code(icon: &IconFile) -> TokenStream {
         let content = read_to_string(&icon.svg_file).unwrap();
-        let svg = tl::parse(&content.trim(), ParserOptions::default())
+        let svg = tl::parse(content.trim(), ParserOptions::default())
             .expect("Failed to parse icon file");
         let &[svg_handle] = svg.children() else {
             panic!("Multiple top-level elements in SVG file")
@@ -172,11 +167,8 @@ mod from_icon_impl {
         let name_ident = format_ident!("{}", icon.name);
         let variant_ident = format_ident!("{}", icon.variant);
         let attributes = svg_node.attributes().iter().map(attr_code);
-        let children = svg_node
-            .children()
-            .all(svg.parser())
-            .iter()
-            .filter_map(child_code);
+        let children =
+            svg_node.children().all(svg.parser()).iter().filter_map(child_code);
 
         quote! {
             (IconName::#name_ident, Variant::#variant_ident) =>
@@ -200,7 +192,9 @@ mod from_icon_impl {
         })
     }
 
-    fn attr_code((attribute, opt_value): (Cow<'_, str>, Option<Cow<'_, str>>)) -> TokenStream {
+    fn attr_code(
+        (attribute, opt_value): (Cow<'_, str>, Option<Cow<'_, str>>),
+    ) -> TokenStream {
         let value = opt_value.unwrap_or("true".into());
         quote! {
             Attribute(#attribute, #value)
