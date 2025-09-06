@@ -5,11 +5,11 @@
 mod generated_icon_names;
 pub use generated_icon_names::IconName;
 
-mod generated_from_icon_impl;
-
 #[cfg(feature = "hypertext")]
 #[doc(cfg(feature = "hypertext"))]
 pub mod hypertext;
+
+pub(crate) mod svg;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Icon {
@@ -20,6 +20,12 @@ pub struct Icon {
     // pub id: Option<String>,
     // pub class: Option<String>,
     // pub style: Option<String>,
+}
+
+impl ToString for Icon {
+    fn to_string(&self) -> String {
+        svg::Svg::from(self).to_string()
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -34,16 +40,4 @@ impl Default for Variant {
     fn default() -> Variant {
         Variant::Outline
     }
-}
-
-#[derive(Clone, Debug, PartialEq)]
-pub struct Svg {
-    pub attrs: &'static [(&'static str, &'static str)],
-    pub children: &'static [SvgChild],
-}
-
-#[derive(Clone, Debug, PartialEq)]
-pub struct SvgChild {
-    pub tag_name: &'static str,
-    pub attrs: &'static [(&'static str, &'static str)],
 }

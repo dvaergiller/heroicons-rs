@@ -134,7 +134,7 @@ mod from_icon_impl {
 
     use super::*;
 
-    const OUTPUT_FILENAME: &str = "src/generated_from_icon_impl.rs";
+    const OUTPUT_FILENAME: &str = "src/svg/generated_from_icon_impl.rs";
 
     pub fn generate<'a>(index: &IconIndex) {
         let tokens = tokens(index);
@@ -150,7 +150,9 @@ mod from_icon_impl {
             .map(|((name, variant), path)| impl_code(name, variant, path));
         quote! {
             /// Generated code. Do not edit.
-            use crate::{Icon, IconName, Variant, Svg, SvgChild};
+            use crate::{Icon, IconName, Variant};
+            use crate::svg::{Svg, SvgChild, Attribute};
+
             impl From<Icon> for Svg {
                 fn from(icon: Icon) -> Svg {
                     (&icon).into()
@@ -221,7 +223,7 @@ mod from_icon_impl {
     fn attr_code((attribute, opt_value): (Cow<'_, str>, Option<Cow<'_, str>>)) -> TokenStream {
         let value = opt_value.unwrap_or(Cow::Borrowed("true"));
         quote! {
-            (#attribute, #value)
+            Attribute(#attribute, #value)
         }
     }
 }

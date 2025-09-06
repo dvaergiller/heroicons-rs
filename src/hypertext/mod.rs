@@ -1,5 +1,5 @@
 use hypertext::{Buffer, Renderable};
-use crate::{Icon, Svg, SvgChild};
+use crate::{Icon, svg::{Svg, SvgChild, Attribute}};
 
 mod hypertext_elements;
 
@@ -15,7 +15,7 @@ impl Renderable for Icon {
     }
 }
 
-fn format_attr((name, val): &(&str, &str), buf_str: &mut String) {
+fn format_attr(&Attribute(name, val): &Attribute, buf_str: &mut String) {
     buf_str.push_str(&format!(" {}=\"{}\"", name, val));
 }
 

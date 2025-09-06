@@ -1,4 +1,4 @@
 /target
 /src/generated_icon_names.rs
-/src/generated_from_icon_impl.rs
+/src/svg/generated_from_icon_impl.rs
 
