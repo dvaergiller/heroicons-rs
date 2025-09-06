@@ -11,7 +11,7 @@ mod generated_from_icon_impl;
 #[doc(cfg(feature = "hypertext"))]
 pub mod hypertext;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Icon {
     pub name: IconName,
     pub variant: Option<Variant>,
@@ -22,7 +22,7 @@ pub struct Icon {
     // pub style: Option<String>,
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Variant {
     Outline,
     Solid,
@@ -36,11 +36,13 @@ impl Default for Variant {
     }
 }
 
+#[derive(Clone, Debug, PartialEq)]
 pub struct Svg {
     pub attrs: &'static [(&'static str, &'static str)],
     pub children: &'static [SvgChild],
 }
 
+#[derive(Clone, Debug, PartialEq)]
 pub struct SvgChild {
     pub tag_name: &'static str,
     pub attrs: &'static [(&'static str, &'static str)],

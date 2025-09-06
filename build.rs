@@ -118,7 +118,7 @@ mod icon_names {
     pub fn icon_names_code<'a>(enum_names: Vec<&'a String>) -> TokenStream {
         let names = enum_names.iter().map(|name| format_ident!("{}", name));
         quote! {
-            #[derive(Clone, Copy, Debug)]
+            #[derive(Clone, Copy, Debug, PartialEq)]
             pub enum IconName {
                 #(#names),*
             }
