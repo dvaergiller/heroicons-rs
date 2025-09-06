@@ -1,7 +1,6 @@
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use std::{
-    collections::HashMap,
     ffi::OsStr,
     io::Write,
     path::{Path, PathBuf},
@@ -9,11 +8,11 @@ use std::{
 
 static ICONS_ROOT: &str = "heroicons/optimized";
 
-type Name = String;
-type Variant = String;
-
-#[derive(Default)]
-struct IconIndex(HashMap<(Name, Variant), PathBuf>);
+struct IconFile {
+    pub name: String,
+    pub variant: String,
+    pub svg_file: PathBuf,
+}
 
 fn main() {
     std::process::Command::new("git")
@@ -21,11 +20,9 @@ fn main() {
         .output()
         .unwrap();
 
-    let mut icon_index = IconIndex::default();
-    let files = svg_files();
-    files.for_each(|path| insert_svg(path, &mut icon_index));
-    icon_names::generate(&icon_index);
-    from_icon_impl::generate(&icon_index);
+    let icon_files = svg_files().map(to_svg_file).collect();
+    icon_names::generate(&icon_files);
+    from_icon_impl::generate(&icon_files);
 
     println!("cargo::rerun-if-changed=heroicons");
     println!("cargo::rerun-if-changed=build.rs");
@@ -46,13 +43,14 @@ fn get_dir_entries(path: PathBuf) -> impl Iterator<Item = PathBuf> {
         .map(|entry| entry.unwrap().path())
 }
 
-fn insert_svg(path: PathBuf, index: &mut IconIndex) {
-    let name = to_icon_name(&path).unwrap();
+fn to_svg_file(svg_file: PathBuf) -> IconFile {
+    let name = to_icon_name(&svg_file);
 
-    let components = path
+    let components = svg_file
         .components()
         .rev()
         .map(|component| component.as_os_str().to_string_lossy().into_owned())
+        .take(3)
         .collect::<Vec<String>>();
     let type_string = &components[1];
     let size_string = &components[2];
@@ -62,58 +60,52 @@ fn insert_svg(path: PathBuf, index: &mut IconIndex) {
         ("solid", "24") => "Solid",
         ("solid", "20") => "Mini",
         ("solid", "16") => "Micro",
-        _ => panic!("Unexpected folder structure: {path:?}"),
-    };
-    index.0.insert((name, variant.to_string()), path);
+        _ => panic!("Unexpected folder structure: {svg_file:?}"),
+    }.to_string();
+
+    IconFile{ name, variant, svg_file }
 }
 
-fn to_icon_name(path: &Path) -> Option<String> {
-    let to_pascal_case = |path: String| {
-        path.split('-')
-            .map(|word| {
-                let (first, rest) = word.split_at(1);
-                let mut fixed = first.to_ascii_uppercase();
-                fixed.push_str(rest);
-                fixed
-            })
-            .collect::<String>()
-    };
+fn to_icon_name(path: &Path) -> String {
+    let stem = path.file_stem()
+        .unwrap()
+        .to_string_lossy()
+        .into_owned();
 
-    if path.extension() == Some(OsStr::new("svg")) {
-        path.file_stem()
-            .map(|stem| stem.to_string_lossy().into_owned())
-            .map(to_pascal_case)
-    } else {
-        None
-    }
+    // Convert to PascalCase
+    stem.split('-')
+        .map(|word| {
+            let (first, rest) = word.split_at(1);
+            let mut fixed = first.to_ascii_uppercase();
+            fixed.push_str(rest);
+            fixed
+        })
+        .collect::<String>()
 }
 
-pub mod parser {
-    use tl::{ParserOptions, VDom};
-
-    pub fn parse<'a>(input: &'a str) -> VDom<'a> {
-        tl::parse(input, ParserOptions::default()).expect("Failed to parse icon file")
-    }
+fn write_src_file(tokens: TokenStream, filename: &str) {
+    let syntax_tree = syn::parse_file(&tokens.to_string()).unwrap();
+    let formatted = prettyplease::unparse(&syntax_tree);
+    let mut output_file = std::fs::File::create(filename).unwrap();
+    output_file.write_all(formatted.as_bytes()).unwrap();
 }
 
 mod icon_names {
-    use super::*;
+    use proc_macro2::TokenStream;
+    use quote::{format_ident, quote};
+
+    use crate::{write_src_file, IconFile};
 
     const NAMES_FILENAME: &str = "src/generated_icon_names.rs";
 
-    pub fn generate(index: &IconIndex) {
-        let mut names = index
-            .0
-            .keys()
-            .map(|(name, _)| name)
+    pub fn generate(icons: &Vec<IconFile>) {
+        let mut names = icons
+            .iter()
+            .map(|icon| &icon.name)
             .collect::<Vec<&String>>();
         names.sort();
         names.dedup();
-        let tokens = icon_names_code(names);
-        let syntax_tree = syn::parse_file(&tokens.to_string()).unwrap();
-        let formatted = prettyplease::unparse(&syntax_tree);
-        let mut output_file = std::fs::File::create(NAMES_FILENAME).unwrap();
-        output_file.write_all(formatted.as_bytes()).unwrap();
+        write_src_file(icon_names_code(names), NAMES_FILENAME);
     }
 
     pub fn icon_names_code(enum_names: Vec<&String>) -> TokenStream {
@@ -130,25 +122,18 @@ mod icon_names {
 mod from_icon_impl {
     use std::{borrow::Cow, fs::read_to_string};
 
-    use tl::{Node, VDom};
+    use tl::{Node, ParserOptions};
 
     use super::*;
 
-    const OUTPUT_FILENAME: &str = "src/svg/generated_from_icon_impl.rs";
+    const FROM_ICON_IMPL_FILENAME: &str = "src/svg/generated_from_icon_impl.rs";
 
-    pub fn generate(index: &IconIndex) {
-        let tokens = tokens(index);
-        let syntax_tree = syn::parse_file(&tokens.to_string()).unwrap();
-        let formatted = prettyplease::unparse(&syntax_tree);
-        let mut output_file = std::fs::File::create(OUTPUT_FILENAME).unwrap();
-        output_file.write_all(formatted.as_bytes()).unwrap();
+    pub fn generate(icons: &Vec<IconFile>) {
+        write_src_file(tokens(icons), FROM_ICON_IMPL_FILENAME);
     }
 
-    fn tokens(index: &IconIndex) -> TokenStream {
-        let case_tokens = index
-            .0
-            .iter()
-            .map(|((name, variant), path)| impl_code(name, variant, path));
+    fn tokens(icons: &Vec<IconFile>) -> TokenStream {
+        let case_tokens = icons.iter().map(svg_code);
         quote! {
             /// Generated code. Do not edit.
             use crate::{Icon, IconName, Variant};
@@ -174,31 +159,25 @@ mod from_icon_impl {
         }
     }
 
-    fn impl_code(name: &Name, variant: &Variant, path: &PathBuf) -> TokenStream {
-        let content = read_to_string(path).unwrap();
-        let svg = parser::parse(content.trim());
-        svg_code(name, variant, svg)
-    }
-
-    fn svg_code(name: &Name, variant: &Variant, svg: VDom) -> TokenStream {
+    fn svg_code(icon: &IconFile) -> TokenStream {
+        let content = read_to_string(&icon.svg_file).unwrap();
+        let svg = tl::parse(&content.trim(), ParserOptions::default())
+            .expect("Failed to parse icon file");
         let &[svg_handle] = svg.children() else {
             panic!("Multiple top-level elements in SVG file")
         };
         let svg_node = svg_handle.get(svg.parser()).unwrap().as_tag().unwrap();
         assert_eq!(svg_node.name(), "svg");
 
-        let name_ident = format_ident!("{name}");
-        let variant_ident = format_ident!("{variant}");
-        let attributes = svg_node
-            .attributes()
-            .iter()
-            .map(attr_code)
-            .collect::<Vec<TokenStream>>();
+        let name_ident = format_ident!("{}", icon.name);
+        let variant_ident = format_ident!("{}", icon.variant);
+        let attributes = svg_node.attributes().iter().map(attr_code);
         let children = svg_node
             .children()
             .all(svg.parser())
             .iter()
-            .filter_map(child_elem_code);
+            .filter_map(child_code);
+
         quote! {
             (IconName::#name_ident, Variant::#variant_ident) =>
                 Svg {
@@ -208,14 +187,10 @@ mod from_icon_impl {
         }
     }
 
-    fn child_elem_code(child: &Node) -> Option<TokenStream> {
+    fn child_code(child: &Node) -> Option<TokenStream> {
         let child_node = child.as_tag()?;
         let tag_name = child_node.name().as_utf8_str();
-        let attrs = child_node
-            .attributes()
-            .iter()
-            .map(attr_code)
-            .collect::<Vec<TokenStream>>();
+        let attrs = child_node.attributes().iter().map(attr_code);
         Some(quote! {
             SvgChild {
                 tag_name: #tag_name,
@@ -226,126 +201,9 @@ mod from_icon_impl {
     }
 
     fn attr_code((attribute, opt_value): (Cow<'_, str>, Option<Cow<'_, str>>)) -> TokenStream {
-        let value = opt_value.unwrap_or(Cow::Borrowed("true"));
+        let value = opt_value.unwrap_or("true".into());
         quote! {
             Attribute(#attribute, #value)
         }
     }
 }
-
-// #[allow(dead_code)]
-// mod hypertext {
-//     use super::*;
-
-//     const NAMES_FILENAME: &str = "src/hypertext/generated_icon_names.rs";
-//     const RENDERABLE_FILENAME: &str = "src/hypertext/generated_renderable.rs";
-
-//     pub fn generate(index: &IconIndex) {
-//         let enum_names = generate_enum_names(index);
-
-//         let files =
-//             [(NAMES_FILENAME, icon_names_code(enum_names)),
-//              (RENDERABLE_FILENAME, renderable_impl_code(index))];
-
-//         for (file, tokens) in files
-//         {
-//             let syntax_tree = syn::parse_file(&tokens.to_string()).unwrap();
-//             let formatted = prettyplease::unparse(&syntax_tree);
-//             let mut output_file = std::fs::File::create(file).unwrap();
-//             output_file.write_all(formatted.as_bytes()).unwrap();
-//         }
-//     }
-
-//     fn generate_enum_names(
-//         index: &IconIndex
-//     ) -> impl Iterator<Item = String>
-//     {
-//         let convert_case = move |path: &PathBuf| -> String {
-//             s.split('_')
-//                 .map(|word| {
-//                     let (first, rest) = word.split_at(1);
-//                     let mut fixed = first.to_ascii_uppercase();
-//                     fixed.push_str(rest);
-//                     fixed
-//                 })
-//                 .collect::<String>()
-//         };
-
-//         index.0.keys().map(convert_case)
-//     }
-
-//     pub fn icon_names_code(
-//         enum_names: impl Iterator<Item = String>
-//     ) -> TokenStream
-//     {
-//         let names = enum_names.map(|name| format_ident!("{}", name));
-//         quote! {
-//             pub enum IconName {
-//                 #(#names),*
-//             }
-//         }
-//     }
-
-//     pub fn renderable_impl_code(
-//         enum_names: impl Iterator<Item = String>,
-//         icon_index: &IconIndex
-//     ) -> TokenStream
-//     {
-//         let with_names = icon_index.iter().zip(enum_names);
-//         let match_cases = with_names.map(|(index_entry, name)| {
-//             quote! {
-//                 (IconName::#name, IconVariant::Solid) =>
-//             }
-//         });
-//         quote! {
-//             /// Generated code. Do not edit.
-//             use hypertext::{Buffer, prelude::*};
-//             use crate::hypertext::Icon;
-//             use crate::icons::*;
-
-//             impl Renderable for Icon {
-//                 fn render_to(&self, buffer: &mut Buffer) {
-//                     match (self.name, self.variant) {
-//                     }
-//                 }
-//             }
-//         }
-//     }
-
-//     fn icon_code(name: &String, entry: &super::IconEntry) -> TokenStream {
-//         let variants = [
-//             (&entry.outline, "outline"),
-//             (&entry.solid, "solid"),
-//             (&entry.mini, "mini"),
-//             (&entry.micro, "micro"),
-//         ];
-//         let icon_tokens = variants
-//             .iter()
-//             .filter_map(|(maybe_file, variant)| {
-//                 if maybe_file.is_some() {
-//                     Some(icon_variant_code(name, variant))
-//                 }
-//                 else {
-//                     None
-//                 }
-//             });
-
-//         TokenStream::from_iter(icon_tokens)
-//     }
-
-//     fn icon_variant_code(name: &String, variant: &str) -> TokenStream {
-//         let fn_name = format!("{name}_{variant}");
-//         let fn_name_ident = format_ident!("{fn_name}");
-//         let string_name = fn_name.to_uppercase();
-//         let string_name_ident = format_ident!("{string_name}");
-//         quote! {
-//             #[component]
-//             pub fn #fn_name_ident() -> impl Renderable {
-//                 rsx! {
-//                     <div>
-//                     </div>
-//                 }
-//             }
-//         }
-//     }
-// }
