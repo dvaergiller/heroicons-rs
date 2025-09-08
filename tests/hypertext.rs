@@ -1,10 +1,15 @@
+mod test_utils;
+
 #[cfg(feature = "hypertext")]
 mod hypertext_tests {
     use heroicons::{Icon, IconName, Variant};
+    use heroicons_macros::icons_in_path;
     use hypertext::prelude::*;
 
+    use crate::test_utils;
+
     #[test]
-    fn test_hypertext_icons_render_correctly() {
+    fn test_hypertext_icons_render() {
         let home_icon =
             Icon { name: IconName::Home, variant: Some(Variant::Outline) };
         let check_icon =
@@ -16,7 +21,7 @@ mod hypertext_tests {
             variant: Some(Variant::Micro),
         };
 
-        // Verify they render as SVG strings
+        // Verify they render as strings
         let home_rendered = home_icon.render().into_inner();
         let check_rendered = check_icon.render().into_inner();
         let envelope_rendered = envelope_icon.render().into_inner();
@@ -29,229 +34,51 @@ mod hypertext_tests {
     }
 
     #[test]
-    fn test_icon_attributes_applied_correctly() {
-        let home_icon =
-            Icon { name: IconName::Home, variant: Some(Variant::Outline) };
+    fn test_outline_icons_are_equivalent_to_source() {
+        let icons = icons_in_path!("heroicons/optimized/24/outline");
 
-        let rendered = home_icon.render().into_inner();
-
-        // The rendered output should contain basic SVG structure
-        assert!(rendered.contains("<svg"));
-        assert!(rendered.contains("</svg>"));
-    }
-
-    #[test]
-    fn test_hypertext_svg_content_is_valid() {
-        let icons = vec![
-            (
-                "home_outline",
-                Icon { name: IconName::Home, variant: Some(Variant::Outline) },
-            ),
-            (
-                "check_circle_solid",
-                Icon {
-                    name: IconName::CheckCircle,
-                    variant: Some(Variant::Solid),
-                },
-            ),
-            (
-                "envelope_mini",
-                Icon { name: IconName::Envelope, variant: Some(Variant::Mini) },
-            ),
-            (
-                "shopping_cart_micro",
-                Icon {
-                    name: IconName::ShoppingCart,
-                    variant: Some(Variant::Micro),
-                },
-            ),
-        ];
-
-        for (name, icon) in icons {
-            let svg_content = icon.render().into_inner();
-            assert!(
-                svg_content.starts_with("<svg"),
-                "{} should start with <svg",
-                name
-            );
-            assert!(
-                svg_content.ends_with("</svg>"),
-                "{} should end with </svg>",
-                name
-            );
-            assert!(
-                svg_content.contains("xmlns=\"http://www.w3.org/2000/svg\""),
-                "{} should have SVG namespace",
-                name
-            );
-            assert!(
-                svg_content.contains("aria-hidden=\"true\""),
-                "{} should have aria-hidden",
-                name
-            );
-            assert!(
-                svg_content.contains("data-slot=\"icon\""),
-                "{} should have data-slot",
-                name
-            );
+        for (icon_name, file) in icons.into_iter() {
+            let icon = rsx! {
+                <Icon name=(*icon_name) variant=(Some(Variant::Outline))/>
+            }.render().into_inner();
+            assert!(test_utils::equivalent_to_source(icon, file));
         }
     }
 
     #[test]
-    fn test_all_icon_variants_available() {
-        // Test that all variants are available for common icons
-        let _home_outline =
-            Icon { name: IconName::Home, variant: Some(Variant::Outline) };
-        let _home_solid =
-            Icon { name: IconName::Home, variant: Some(Variant::Solid) };
-        let _home_mini =
-            Icon { name: IconName::Home, variant: Some(Variant::Mini) };
-        let _home_micro =
-            Icon { name: IconName::Home, variant: Some(Variant::Micro) };
+    fn test_solid_icons_are_equivalent_to_source() {
+        let icons = icons_in_path!("heroicons/optimized/24/solid");
 
-        let _user_plus_outline =
-            Icon { name: IconName::UserPlus, variant: Some(Variant::Outline) };
-        let _user_plus_solid =
-            Icon { name: IconName::UserPlus, variant: Some(Variant::Solid) };
-        let _user_plus_mini =
-            Icon { name: IconName::UserPlus, variant: Some(Variant::Mini) };
-        let _user_plus_micro =
-            Icon { name: IconName::UserPlus, variant: Some(Variant::Micro) };
-
-        let _envelope_outline =
-            Icon { name: IconName::Envelope, variant: Some(Variant::Outline) };
-        let _envelope_solid =
-            Icon { name: IconName::Envelope, variant: Some(Variant::Solid) };
-        let _envelope_mini =
-            Icon { name: IconName::Envelope, variant: Some(Variant::Mini) };
-        let _envelope_micro =
-            Icon { name: IconName::Envelope, variant: Some(Variant::Micro) };
+        for (icon_name, file) in icons.into_iter() {
+            let icon = rsx! {
+                <Icon name=(*icon_name) variant=(Some(Variant::Solid))/>
+            }.render().into_inner();
+            assert!(test_utils::equivalent_to_source(icon, file));
+        }
     }
 
     #[test]
-    fn test_icon_content_different_between_variants() {
-        let home_outline =
-            Icon { name: IconName::Home, variant: Some(Variant::Outline) };
-        let home_solid =
-            Icon { name: IconName::Home, variant: Some(Variant::Solid) };
-        let home_mini =
-            Icon { name: IconName::Home, variant: Some(Variant::Mini) };
-        let home_micro =
-            Icon { name: IconName::Home, variant: Some(Variant::Micro) };
+    fn test_mini_icons_are_equivalent_to_source() {
+        let icons = icons_in_path!("heroicons/optimized/20/solid");
 
-        let envelope_outline =
-            Icon { name: IconName::Envelope, variant: Some(Variant::Outline) };
-        let user_plus_solid =
-            Icon { name: IconName::UserPlus, variant: Some(Variant::Solid) };
-        let shopping_cart_solid = Icon {
-            name: IconName::ShoppingCart,
-            variant: Some(Variant::Solid),
-        };
-
-        // Ensure different variants have different content
-        assert_ne!(
-            home_outline.render().into_inner(),
-            home_solid.render().into_inner()
-        );
-        assert_ne!(
-            home_solid.render().into_inner(),
-            home_mini.render().into_inner()
-        );
-        assert_ne!(
-            home_mini.render().into_inner(),
-            home_micro.render().into_inner()
-        );
-
-        // Ensure different icons have different content
-        assert_ne!(
-            home_outline.render().into_inner(),
-            envelope_outline.render().into_inner()
-        );
-        assert_ne!(
-            user_plus_solid.render().into_inner(),
-            shopping_cart_solid.render().into_inner()
-        );
+        for (icon_name, file) in icons.into_iter() {
+            let icon = rsx! {
+                <Icon name=(*icon_name) variant=(Some(Variant::Mini))/>
+            }.render().into_inner();
+            assert!(test_utils::equivalent_to_source(icon, file));
+        }
     }
 
     #[test]
-    fn test_icon_variants_have_correct_attributes() {
-        let home_outline =
-            Icon { name: IconName::Home, variant: Some(Variant::Outline) };
-        let home_solid =
-            Icon { name: IconName::Home, variant: Some(Variant::Solid) };
+    fn test_micro_icons_are_equivalent_to_source() {
+        let icons = icons_in_path!("heroicons/optimized/16/solid");
 
-        let outline_rendered = home_outline.render().into_inner();
-        let solid_rendered = home_solid.render().into_inner();
-
-        // Outline icons should have stroke attributes
-        assert!(outline_rendered.contains("stroke-width"));
-        assert!(outline_rendered.contains("fill=\"none\""));
-
-        // Solid icons should have fill attributes
-        assert!(solid_rendered.contains("fill=\"currentColor\""));
-        assert!(!solid_rendered.contains("stroke-width"));
-    }
-
-    #[test]
-    fn test_icon_sizes_have_correct_viewbox() {
-        let home_outline =
-            Icon { name: IconName::Home, variant: Some(Variant::Outline) };
-        let home_solid =
-            Icon { name: IconName::Home, variant: Some(Variant::Solid) };
-        let home_mini =
-            Icon { name: IconName::Home, variant: Some(Variant::Mini) };
-        let home_micro =
-            Icon { name: IconName::Home, variant: Some(Variant::Micro) };
-
-        // 24px icons (outline/solid)
-        assert!(
-            home_outline
-                .render()
-                .into_inner()
-                .contains("viewBox=\"0 0 24 24\"")
-        );
-        assert!(
-            home_solid.render().into_inner().contains("viewBox=\"0 0 24 24\"")
-        );
-
-        // 20px icons (mini)
-        assert!(
-            home_mini.render().into_inner().contains("viewBox=\"0 0 20 20\"")
-        );
-
-        // 16px icons (micro)
-        assert!(
-            home_micro.render().into_inner().contains("viewBox=\"0 0 16 16\"")
-        );
-    }
-
-    #[test]
-    fn test_rsx_macro_with_multiple_heroicons() {
-        let navigation = rsx! {
-            <nav class="nav">
-                <div><Icon name=(IconName::Home) variant=(Some(Variant::Outline)) /></div>
-                <div><Icon name=(IconName::Envelope) variant=(Some(Variant::Outline)) /></div>
-                <div><Icon name=(IconName::ShoppingCart) variant=(Some(Variant::Outline)) /></div>
-            </nav>
-        };
-
-        let _rendered = navigation.render();
-        assert!(true);
-    }
-
-    #[test]
-    fn test_maud_macro_with_multiple_heroicons() {
-        let navigation = maud! {
-            nav class="navigation" {
-                div { (Icon { name: IconName::Home, variant: Some(Variant::Outline), }) }
-                div { (Icon { name: IconName::Envelope, variant: Some(Variant::Outline), }) }
-                div { (Icon { name: IconName::ShoppingCart, variant: Some(Variant::Outline), }) }
-                div { (Icon { name: IconName::UserPlus, variant: Some(Variant::Outline), }) }
-            }
-        };
-
-        let _rendered = navigation.render();
-        assert!(true);
+        for (icon_name, file) in icons.into_iter() {
+            let icon = rsx! {
+                <Icon name=(*icon_name) variant=(Some(Variant::Micro))/>
+            }.render().into_inner();
+            assert!(test_utils::equivalent_to_source(icon, file));
+        }
     }
 }
 
