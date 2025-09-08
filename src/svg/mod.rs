@@ -10,7 +10,7 @@ pub struct Svg {
 
 impl Display for Svg {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        let mut output = "<svg ".to_string();
+        let mut output = "<svg".to_string();
         self.attrs.iter().for_each(|a| output.push_str(&a.to_string()));
         output.push('>');
         self.children.iter().for_each(|c| output.push_str(&c.to_string()));
@@ -29,7 +29,7 @@ impl Display for SvgChild {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         let mut output = format!("<{}", self.tag_name);
         self.attrs.iter().for_each(|a| output.push_str(&a.to_string()));
-        output.push_str(" />");
+        output.push_str("/>");
         f.write_str(&output)
     }
 }
@@ -40,6 +40,6 @@ pub struct Attribute(pub &'static str, pub &'static str);
 impl Display for Attribute {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         let Attribute(name, value) = self;
-        f.write_fmt(format_args!("{name}=\"{value}\""))
+        f.write_fmt(format_args!(" {name}=\"{value}\""))
     }
 }
