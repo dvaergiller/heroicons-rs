@@ -26,12 +26,12 @@ use heroicons::{Icon, IconName, Variant};
 // Create icons with different variants
 let home_icon = Icon {
     name: IconName::Home,
-    variant: Some(Variant::Outline),
+    variant: Variant::Outline,
 };
 
 let user_icon = Icon {
     name: IconName::User,
-    variant: Some(Variant::Solid),
+    variant: Variant::Solid,
 };
 
 // Convert to SVG string
@@ -49,8 +49,8 @@ use hypertext::prelude::*;
 
 let page = rsx! {
     <div>
-        <Icon name=(IconName::Home) variant=(Some(Variant::Outline)) />
-        <Icon name=(IconName::User) variant=(Some(Variant::Solid)) />
+        <Icon name=(IconName::Home) variant=(Variant::Outline) />
+        <Icon name=(IconName::User) variant=(Variant::Solid) />
     </div>
 }.render();
 ```
@@ -63,8 +63,8 @@ use hypertext::prelude::*;
 
 let page = maud! {
     div {
-        (Icon { name: IconName::Home, variant: Some(Variant::Outline) })
-        (Icon { name: IconName::User, variant: Some(Variant::Solid) })
+        Icon name=(IconName::Home) variant=(Variant::Outline);
+        Icon name=(IconName::User) variant=(Variant::Solid);
     }
 }.render();
 ```

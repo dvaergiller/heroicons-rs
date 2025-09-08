@@ -14,7 +14,7 @@ pub(crate) mod svg;
 #[derive(Clone, Debug, PartialEq)]
 pub struct Icon {
     pub name: IconName,
-    pub variant: Option<Variant>,
+    pub variant: Variant,
     // Need better support for optional fields for this
     // pub id: Option<String>,
     // pub class: Option<String>,

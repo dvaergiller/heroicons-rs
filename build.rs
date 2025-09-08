@@ -199,11 +199,11 @@ mod from_icon_impl {
 
             impl From<&Icon> for Svg {
                 fn from(icon: &Icon) -> Svg {
-                    match (icon.name, icon.variant.unwrap_or_default()) {
+                    match (icon.name, icon.variant) {
                         #(#case_tokens),*,
                         _ => Svg::from(&Icon {
                             name: IconName::QuestionMarkCircle,
-                            variant: None,
+                            variant: Variant::Outline,
                         })
                     }
                 }

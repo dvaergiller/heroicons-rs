@@ -11,14 +11,14 @@ mod hypertext_tests {
     #[test]
     fn test_hypertext_icons_render() {
         let home_icon =
-            Icon { name: IconName::Home, variant: Some(Variant::Outline) };
+            Icon { name: IconName::Home, variant: Variant::Outline };
         let check_icon =
-            Icon { name: IconName::CheckCircle, variant: Some(Variant::Solid) };
+            Icon { name: IconName::CheckCircle, variant: Variant::Solid };
         let envelope_icon =
-            Icon { name: IconName::Envelope, variant: Some(Variant::Mini) };
+            Icon { name: IconName::Envelope, variant: Variant::Mini };
         let cart_icon = Icon {
             name: IconName::ShoppingCart,
-            variant: Some(Variant::Micro),
+            variant: Variant::Micro,
         };
 
         // Verify they render as strings
@@ -39,7 +39,7 @@ mod hypertext_tests {
 
         for (icon_name, file) in icons.into_iter() {
             let icon = rsx! {
-                <Icon name=(*icon_name) variant=(Some(Variant::Outline))/>
+                <Icon name=(*icon_name) variant=(Variant::Outline)/>
             }.render().into_inner();
             assert!(test_utils::equivalent_to_source(icon, file));
         }
@@ -51,7 +51,7 @@ mod hypertext_tests {
 
         for (icon_name, file) in icons.into_iter() {
             let icon = rsx! {
-                <Icon name=(*icon_name) variant=(Some(Variant::Solid))/>
+                <Icon name=(*icon_name) variant=(Variant::Solid)/>
             }.render().into_inner();
             assert!(test_utils::equivalent_to_source(icon, file));
         }
@@ -63,7 +63,7 @@ mod hypertext_tests {
 
         for (icon_name, file) in icons.into_iter() {
             let icon = rsx! {
-                <Icon name=(*icon_name) variant=(Some(Variant::Mini))/>
+                <Icon name=(*icon_name) variant=(Variant::Mini)/>
             }.render().into_inner();
             assert!(test_utils::equivalent_to_source(icon, file));
         }
@@ -75,7 +75,7 @@ mod hypertext_tests {
 
         for (icon_name, file) in icons.into_iter() {
             let icon = rsx! {
-                <Icon name=(*icon_name) variant=(Some(Variant::Micro))/>
+                <Icon name=(*icon_name) variant=(Variant::Micro)/>
             }.render().into_inner();
             assert!(test_utils::equivalent_to_source(icon, file));
         }
