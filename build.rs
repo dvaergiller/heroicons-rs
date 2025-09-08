@@ -1,9 +1,5 @@
 use proc_macro2::TokenStream;
-use std::{
-    ffi::OsStr,
-    io::Write,
-    path::{Path, PathBuf},
-};
+use std::{ffi::OsStr, io::Write, path::{Path, PathBuf}};
 
 static ICONS_ROOT: &str = "heroicons/optimized";
 
@@ -27,6 +23,71 @@ fn main() {
     println!("cargo::rerun-if-changed=build.rs");
 }
 
+mod parser {
+    use std::{fs::read_to_string, path::Path};
+
+    use pest::{iterators::Pairs, Parser};
+    use pest_derive::Parser;
+
+    pub struct Tag {
+        pub name: String,
+        pub attributes: Vec<(String, String)>,
+        pub children: Vec<Tag>,
+    }
+
+    pub fn parse(file: &Path) -> Tag {
+        let content = read_to_string(file).unwrap();
+        let mut result = SVGParser::parse(Rule::tag, &content).unwrap();
+        let svg_pair = result.next().unwrap().into_inner();
+        into_tag(svg_pair)
+    }
+
+    fn into_tag(mut pair: Pairs<Rule>) -> Tag {
+        let svg_identifier = pair.next().unwrap();
+        assert_eq!(svg_identifier.as_rule(), Rule::identifier);
+        let svg_attrs = pair.next().unwrap();
+        assert_eq!(svg_attrs.as_rule(), Rule::attributes);
+        let svg_children = pair.next().unwrap();
+        assert_eq!(svg_children.as_rule(), Rule::children);
+
+        let name = svg_identifier.as_str().to_owned();
+
+        let attributes = svg_attrs.into_inner().map(|attr| {
+            assert_eq!(attr.as_rule(), Rule::attribute);
+            let mut pairs = attr.into_inner();
+            let attr_name = pairs.next().unwrap().as_str().to_owned();
+            let attr_value = pairs.next()
+                .unwrap()
+                .into_inner()
+                .next()
+                .unwrap()
+                .as_str()
+                .to_owned();
+            (attr_name, attr_value)
+        }).collect::<Vec<(String, String)>>();
+
+        let children = svg_children.into_inner()
+            .map(|pair| into_tag(pair.into_inner()))
+            .collect();
+
+        Tag { name, attributes, children }
+    }
+
+    #[derive(Parser)]
+    #[grammar_inline =
+      r#"
+      tag = { "<" ~ PUSH(identifier) ~ attributes ~ children }
+      children = { ("/>" ~ DROP) | (">" ~ tag* ~ "</" ~ POP ~ ">") }
+      attributes = { attribute* }
+      attribute = { identifier ~ "=" ~ string_value }
+      identifier = @{ ('a'..'z' | 'A'..'Z' | "-")+ }
+      string_value = { "\"" ~ string_contents ~ "\"" }
+      string_contents = { (!"\"" ~ ANY)* }
+      WHITESPACE = _{ " " | "\n" }
+      "#]
+    pub struct SVGParser;
+}
+
 // SVG search and indexing:
 
 fn svg_files() -> impl Iterator<Item = PathBuf> {
@@ -41,13 +102,12 @@ fn get_dir_entries(path: PathBuf) -> impl Iterator<Item = PathBuf> {
 }
 
 fn to_svg_file(svg_file: PathBuf) -> IconFile {
-    let name = to_icon_name(&svg_file);
+    let name = path_to_icon_name(&svg_file);
 
     let components = svg_file
         .components()
         .rev()
         .map(|component| component.as_os_str().to_string_lossy().into_owned())
-        .take(3)
         .collect::<Vec<String>>();
     let type_string = &components[1];
     let size_string = &components[2];
@@ -64,7 +124,7 @@ fn to_svg_file(svg_file: PathBuf) -> IconFile {
     IconFile { name, variant, svg_file }
 }
 
-fn to_icon_name(path: &Path) -> String {
+fn path_to_icon_name(path: &Path) -> String {
     let stem = path.file_stem().unwrap().to_string_lossy().into_owned();
 
     // Convert to PascalCase
@@ -113,13 +173,10 @@ mod icon_names {
 }
 
 mod from_icon_impl {
-    use std::{borrow::Cow, fs::read_to_string};
-
     use proc_macro2::TokenStream;
     use quote::{format_ident, quote};
-    use tl::{Node, ParserOptions};
 
-    use crate::{IconFile, write_src_file};
+    use crate::{parser::{self, Tag}, write_src_file, IconFile};
 
     const FROM_ICON_IMPL_FILENAME: &str = "src/svg/generated_from_icon_impl.rs";
 
@@ -155,20 +212,13 @@ mod from_icon_impl {
     }
 
     fn svg_code(icon: &IconFile) -> TokenStream {
-        let content = read_to_string(&icon.svg_file).unwrap();
-        let svg = tl::parse(content.trim(), ParserOptions::default())
-            .expect("Failed to parse icon file");
-        let &[svg_handle] = svg.children() else {
-            panic!("Multiple top-level elements in SVG file")
-        };
-        let svg_node = svg_handle.get(svg.parser()).unwrap().as_tag().unwrap();
-        assert_eq!(svg_node.name(), "svg");
+        let svg_tag = parser::parse(&icon.svg_file);
+        assert_eq!(svg_tag.name, "svg");
 
         let name_ident = format_ident!("{}", icon.name);
         let variant_ident = format_ident!("{}", icon.variant);
-        let attributes = svg_node.attributes().iter().map(attr_code);
-        let children =
-            svg_node.children().all(svg.parser()).iter().filter_map(child_code);
+        let attributes = svg_tag.attributes.into_iter().map(attr_code);
+        let children = svg_tag.children.into_iter().map(child_code);
 
         quote! {
             (IconName::#name_ident, Variant::#variant_ident) =>
@@ -179,10 +229,9 @@ mod from_icon_impl {
         }
     }
 
-    fn child_code(child: &Node) -> Option<TokenStream> {
-        let child_node = child.as_tag()?;
-        let tag_name = child_node.name().as_utf8_str();
-        let attrs = child_node.attributes().iter().map(attr_code);
+    fn child_code(child: Tag) -> Option<TokenStream> {
+        let tag_name = child.name;
+        let attrs = child.attributes.into_iter().map(attr_code);
         Some(quote! {
             SvgChild {
                 tag_name: #tag_name,
@@ -192,10 +241,7 @@ mod from_icon_impl {
         })
     }
 
-    fn attr_code(
-        (attribute, opt_value): (Cow<'_, str>, Option<Cow<'_, str>>),
-    ) -> TokenStream {
-        let value = opt_value.unwrap_or("true".into());
+    fn attr_code((attribute, value): (String, String)) -> TokenStream {
         quote! {
             Attribute(#attribute, #value)
         }

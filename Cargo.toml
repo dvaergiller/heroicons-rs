@@ -7,19 +7,23 @@ edition = "2024"
 hypertext = { version = "~0.12.1", optional = true }
 
 [build-dependencies]
+heroicons_macros = { path = "heroicons_macros" }
+pest = "2.8.1"
+pest_derive = "2.8.1"
 prettyplease = "0.2.37"
 proc-macro2 = "1.0.101"
 quote = { version = "1.0.40", default-features = false }
 syn = "2.0.106"
-tl = "0.7.8"
 
 [dev-dependencies]
+heroicons_macros = { path = "heroicons_macros" }
 hypertext = ">= 0.12.1"
+regex = "1.11.2"
+syn = { version = "2.0.106", features = ["full", "parsing", "proc-macro"], default-features = false }
 
 [features]
 default = ["hypertext"]
 hypertext = ["dep:hypertext"]
-simd = ["tl/simd"]
 
 [package.metadata.docs.rs]
 all-features = true
