@@ -8,18 +8,55 @@ pub struct Svg {
     pub children: &'static [SvgChild],
 }
 
+impl Svg {
+    pub fn segments<'a>(&'a self) -> SvgSegments<'a> {
+        let mut segments = SvgSegments::new();
+        segments.push("<svg");
+        self.attrs.iter().for_each(|attr| attr.push_segments(&mut segments));
+        segments.push(">");
+        self.children.iter().for_each(|ch| ch.push_segments(&mut segments));
+        segments.push("</svg>");
+        segments
+    }
+}
+
+pub struct SvgSegments<'a> {
+    segments: Vec<&'a str>,
+}
+
+impl<'a> SvgSegments<'a> {
+    pub fn new() -> SvgSegments<'a> {
+        SvgSegments { segments: Vec::with_capacity(256) }
+    }
+
+    pub fn push(&mut self, segment: &'a str) {
+        self.segments.push(segment);
+    }
+
+    pub fn push_all<S: IntoIterator<Item = &'a str>>(&mut self, segments: S) {
+        segments.into_iter().for_each(|s| self.segments.push(s));
+    }
+
+    pub fn render(&self) -> String {
+        let mut output = String::new();
+        self.render_to(&mut output);
+        output
+    }
+
+    pub fn render_to(&self, output: &mut String) {
+        let len = self.segments.iter().map(|s| s.len()).sum();
+        output.reserve(len);
+        self.segments.iter().for_each(|s| output.push_str(s));
+    }
+}
+
 pub trait IntoSvg {
     fn into_svg(self) -> Svg;
 }
 
 impl Display for Svg {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        let mut output = "<svg".to_string();
-        self.attrs.iter().for_each(|a| output.push_str(&a.to_string()));
-        output.push('>');
-        self.children.iter().for_each(|c| output.push_str(&c.to_string()));
-        output.push_str("</svg>");
-        f.write_str(&output)
+        f.write_str(&self.segments().render())
     }
 }
 
@@ -29,21 +66,19 @@ pub struct SvgChild {
     pub attrs: &'static [Attribute],
 }
 
-impl Display for SvgChild {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        let mut output = format!("<{}", self.tag_name);
-        self.attrs.iter().for_each(|a| output.push_str(&a.to_string()));
-        output.push_str("/>");
-        f.write_str(&output)
+impl SvgChild {
+    pub fn push_segments(&self, segments: &mut SvgSegments) {
+        segments.push_all(["<", self.tag_name]);
+        self.attrs.iter().for_each(|attr| attr.push_segments(segments));
+        segments.push("/>");
     }
 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Attribute(pub &'static str, pub &'static str);
 
-impl Display for Attribute {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        let Attribute(name, value) = self;
-        f.write_fmt(format_args!(" {name}=\"{value}\""))
+impl Attribute {
+    pub fn push_segments(&self, segments: &mut SvgSegments) {
+        segments.push_all([" ", self.0, "=\"", self.1, "\""]);
     }
 }

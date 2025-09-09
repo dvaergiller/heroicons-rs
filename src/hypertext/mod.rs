@@ -1,6 +1,6 @@
 use crate::{
     Icon, IconName, IconVariant,
-    svg::{Attribute, IntoSvg, Svg, SvgChild},
+    svg::{IntoSvg, Svg},
 };
 use hypertext::{Buffer, Renderable};
 
@@ -14,22 +14,8 @@ where
 {
     fn render_to(&self, buffer: &mut Buffer) {
         let icon_svg: Svg = (*self).into_svg();
-        let buf_str = buffer.dangerously_get_string();
-        buf_str.push_str("<svg");
-        icon_svg.attrs.iter().for_each(|attr| format_attr(attr, buf_str));
-        buf_str.push('>');
-        icon_svg.children.iter().for_each(|child| format_child(child, buf_str));
-        buf_str.push_str("</svg>");
+        let segments = icon_svg.segments();
+        let mut buf_str = buffer.dangerously_get_string();
+        segments.render_to(&mut buf_str);
     }
-}
-
-fn format_attr(&Attribute(name, val): &Attribute, buf_str: &mut String) {
-    [" ", name, "=\"", val, "\""].iter().for_each(|s| buf_str.push_str(s));
-}
-
-fn format_child(child: &SvgChild, buf_str: &mut String) {
-    buf_str.push('<');
-    buf_str.push_str(child.tag_name);
-    child.attrs.iter().for_each(|attr| format_attr(attr, buf_str));
-    buf_str.push_str(" />");
 }

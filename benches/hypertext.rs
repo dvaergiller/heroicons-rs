@@ -45,17 +45,17 @@ fn generate_all_icons_into_one_buffer(bencher: &mut Bencher) {
         });
         for_each_icon!("heroicons/optimized/24/solid", |name, _| {
             rsx! {
-                <Icon name=(name) variant=(Outline)/>
+                <Icon name=(name) variant=(Solid)/>
             }.render_to(&mut buffer);
         });
         for_each_icon!("heroicons/optimized/20/solid", |name, _| {
             rsx! {
-                <Icon name=(name) variant=(Outline)/>
+                <Icon name=(name) variant=(Mini)/>
             }.render_to(&mut buffer);
         });
         for_each_icon!("heroicons/optimized/16/solid", |name, _| {
             rsx! {
-                <Icon name=(name) variant=(Outline)/>
+                <Icon name=(name) variant=(Micro)/>
             }.render_to(&mut buffer);
         });
     });
