@@ -42,8 +42,7 @@ pub fn for_each_icon(tokens: TokenStream) -> TokenStream {
         let path_str = path.as_os_str().to_str();
 
         quote! {
-            let callback = #callback;
-            callback(#icon_name_ident, #path_str);
+            (#callback)(#icon_name_ident, #path_str);
         }
     });
 
