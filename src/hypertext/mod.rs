@@ -1,14 +1,19 @@
 use crate::{
-    Icon,
-    svg::{Attribute, Svg, SvgChild},
+    Icon, IconName, IconVariant,
+    svg::{Attribute, IntoSvg, Svg, SvgChild},
 };
 use hypertext::{Buffer, Renderable};
 
 mod hypertext_elements;
 
-impl Renderable for Icon {
+impl<Name, Variant> Renderable for Icon<Name, Variant>
+where
+    Name: IconName + Copy,
+    Variant: IconVariant + Copy,
+    Self: IntoSvg,
+{
     fn render_to(&self, buffer: &mut Buffer) {
-        let icon_svg: Svg = self.into();
+        let icon_svg: Svg = (*self).into_svg();
         let buf_str = buffer.dangerously_get_string();
         buf_str.push_str("<svg");
         icon_svg.attrs.iter().for_each(|attr| format_attr(attr, buf_str));

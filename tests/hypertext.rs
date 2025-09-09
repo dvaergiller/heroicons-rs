@@ -2,24 +2,18 @@ mod test_utils;
 
 #[cfg(feature = "hypertext")]
 mod hypertext_tests {
-    use heroicons::{Icon, IconName, Variant};
-    use heroicons_macros::icons_in_path;
+    use heroicons::{Icon, icon_name::*, icon_variant::*};
+    use heroicons_macros::for_each_icon;
     use hypertext::prelude::*;
 
     use crate::test_utils;
 
     #[test]
     fn test_hypertext_icons_render() {
-        let home_icon =
-            Icon { name: IconName::Home, variant: Variant::Outline };
-        let check_icon =
-            Icon { name: IconName::CheckCircle, variant: Variant::Solid };
-        let envelope_icon =
-            Icon { name: IconName::Envelope, variant: Variant::Mini };
-        let cart_icon = Icon {
-            name: IconName::ShoppingCart,
-            variant: Variant::Micro,
-        };
+        let home_icon = Icon { name: Home, variant: Outline };
+        let check_icon = Icon { name: CheckCircle, variant: Solid };
+        let envelope_icon = Icon { name: Envelope, variant: Mini };
+        let cart_icon = Icon { name: ShoppingCart, variant: Micro };
 
         // Verify they render as strings
         let home_rendered = home_icon.render().into_inner();
@@ -35,50 +29,50 @@ mod hypertext_tests {
 
     #[test]
     fn test_outline_icons_are_equivalent_to_source() {
-        let icons = icons_in_path!("heroicons/optimized/24/outline");
-
-        for (icon_name, file) in icons.into_iter() {
+        for_each_icon!("heroicons/optimized/24/outline", |icon_name, file| {
             let icon = rsx! {
-                <Icon name=(*icon_name) variant=(Variant::Outline)/>
-            }.render().into_inner();
-            assert!(test_utils::equivalent_to_source(icon, file));
-        }
+                <Icon name=(icon_name) variant=(Outline)/>
+            }
+            .render()
+            .into_inner();
+            test_utils::check_equivalent_to_source(icon, file);
+        });
     }
 
     #[test]
     fn test_solid_icons_are_equivalent_to_source() {
-        let icons = icons_in_path!("heroicons/optimized/24/solid");
-
-        for (icon_name, file) in icons.into_iter() {
+        for_each_icon!("heroicons/optimized/24/solid", |icon_name, file| {
             let icon = rsx! {
-                <Icon name=(*icon_name) variant=(Variant::Solid)/>
-            }.render().into_inner();
-            assert!(test_utils::equivalent_to_source(icon, file));
-        }
+                <Icon name=(icon_name) variant=(Solid)/>
+            }
+            .render()
+            .into_inner();
+            test_utils::check_equivalent_to_source(icon, file);
+        });
     }
 
     #[test]
     fn test_mini_icons_are_equivalent_to_source() {
-        let icons = icons_in_path!("heroicons/optimized/20/solid");
-
-        for (icon_name, file) in icons.into_iter() {
+        for_each_icon!("heroicons/optimized/20/solid", |icon_name, file| {
             let icon = rsx! {
-                <Icon name=(*icon_name) variant=(Variant::Mini)/>
-            }.render().into_inner();
-            assert!(test_utils::equivalent_to_source(icon, file));
-        }
+                <Icon name=(icon_name) variant=(Mini)/>
+            }
+            .render()
+            .into_inner();
+            test_utils::check_equivalent_to_source(icon, file);
+        });
     }
 
     #[test]
     fn test_micro_icons_are_equivalent_to_source() {
-        let icons = icons_in_path!("heroicons/optimized/16/solid");
-
-        for (icon_name, file) in icons.into_iter() {
+        for_each_icon!("heroicons/optimized/16/solid", |icon_name, file| {
             let icon = rsx! {
-                <Icon name=(*icon_name) variant=(Variant::Micro)/>
-            }.render().into_inner();
-            assert!(test_utils::equivalent_to_source(icon, file));
-        }
+                <Icon name=(icon_name) variant=(Micro)/>
+            }
+            .render()
+            .into_inner();
+            test_utils::check_equivalent_to_source(icon, file);
+        });
     }
 }
 

@@ -1,17 +1,14 @@
-use heroicons::{Icon, IconName, Variant};
-use heroicons_macros::icons_in_path;
+use heroicons::{Icon, icon_name::*, icon_variant::*};
+use heroicons_macros::for_each_icon;
 
 mod test_utils;
 
 #[test]
 fn test_common_icons_are_available() {
-    let home_outline =
-        Icon { name: IconName::Home, variant: Variant::Outline };
-    let home_solid =
-        Icon { name: IconName::Home, variant: Variant::Solid };
-    let home_mini = Icon { name: IconName::Home, variant: Variant::Mini };
-    let home_micro =
-        Icon { name: IconName::Home, variant: Variant::Micro };
+    let home_outline = Icon { name: Home, variant: Outline };
+    let home_solid = Icon { name: Home, variant: Solid };
+    let home_mini = Icon { name: Home, variant: Mini };
+    let home_micro = Icon { name: Home, variant: Micro };
 
     // Convert to SVG strings to verify they work
     let _svg1 = home_outline.to_string();
@@ -22,40 +19,32 @@ fn test_common_icons_are_available() {
 
 #[test]
 fn test_outline_icons_are_equivalent_to_source() {
-    let icons = icons_in_path!("heroicons/optimized/24/outline");
-
-    for (icon_name, file) in icons.into_iter() {
-        let icon = Icon { name: *icon_name, variant: Variant::Outline };
-        assert!(test_utils::equivalent_to_source(icon.to_string(), file));
-    }
+    for_each_icon!("heroicons/optimized/24/outline", |icon_name, file| {
+        let icon = Icon { name: icon_name, variant: Outline };
+        test_utils::check_equivalent_to_source(icon.to_string(), file);
+    });
 }
 
 #[test]
 fn test_solid_icons_are_equivalent_to_source() {
-    let icons = icons_in_path!("heroicons/optimized/24/solid");
-
-    for (icon_name, file) in icons.into_iter() {
-        let icon = Icon { name: *icon_name, variant: Variant::Solid };
-        assert!(test_utils::equivalent_to_source(icon.to_string(), file));
-    }
+    for_each_icon!("heroicons/optimized/24/solid", |icon_name, file| {
+        let icon = Icon { name: icon_name, variant: Solid };
+        test_utils::check_equivalent_to_source(icon.to_string(), file);
+    });
 }
 
 #[test]
 fn test_mini_icons_are_equivalent_to_source() {
-    let icons = icons_in_path!("heroicons/optimized/20/solid");
-
-    for (icon_name, file) in icons.into_iter() {
-        let icon = Icon { name: *icon_name, variant: Variant::Mini };
-        assert!(test_utils::equivalent_to_source(icon.to_string(), file));
-     }
+    for_each_icon!("heroicons/optimized/20/solid", |icon_name, file| {
+        let icon = Icon { name: icon_name, variant: Mini };
+        test_utils::check_equivalent_to_source(icon.to_string(), file);
+    });
 }
 
 #[test]
 fn test_micro_icons_are_equivalent_to_source() {
-    let icons = icons_in_path!("heroicons/optimized/16/solid");
-
-    for (icon_name, file) in icons.into_iter() {
-        let icon = Icon { name: *icon_name, variant: Variant::Micro };
-        assert!(test_utils::equivalent_to_source(icon.to_string(), file));
-    }
+    for_each_icon!("heroicons/optimized/16/solid", |icon_name, file| {
+        let icon = Icon { name: icon_name, variant: Micro };
+        test_utils::check_equivalent_to_source(icon.to_string(), file);
+    });
 }

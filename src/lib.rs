@@ -2,36 +2,53 @@
 #![feature(doc_cfg)]
 
 mod generated_icon_names;
-use std::fmt::{self, Display, Formatter};
-
-pub use generated_icon_names::IconName;
+use std::fmt::{Display, Formatter};
 
 #[cfg(feature = "hypertext")]
 pub mod hypertext;
 
 pub(crate) mod svg;
 
-#[derive(Clone, Debug, PartialEq)]
-pub struct Icon {
-    pub name: IconName,
+pub use crate::svg::IntoSvg;
+
+#[derive(Clone, Copy, Debug)]
+pub struct Icon<Name: IconName, Variant: IconVariant> {
+    pub name: Name,
     pub variant: Variant,
-    // Need better support for optional fields for this
-    // pub id: Option<String>,
-    // pub class: Option<String>,
-    // pub style: Option<String>,
 }
 
-impl Display for Icon {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        svg::Svg::from(self).fmt(f)
+impl<Name, Variant> Display for Icon<Name, Variant>
+where
+    Icon<Name, Variant>: svg::IntoSvg,
+    Name: IconName + Copy,
+    Variant: IconVariant + Copy,
+{
+    fn fmt(&self, f: &mut Formatter) -> Result<(), std::fmt::Error> {
+        self.into_svg().fmt(f)
     }
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
-pub enum Variant {
-    #[default]
-    Outline,
-    Solid,
-    Mini,
-    Micro,
+pub trait IconName {}
+pub trait IconVariant {}
+
+pub mod icon_variant {
+    #[derive(Clone, Copy, Debug)]
+    pub struct Outline;
+    impl super::IconVariant for Outline {}
+
+    #[derive(Clone, Copy, Debug)]
+    pub struct Solid;
+    impl super::IconVariant for Solid {}
+
+    #[derive(Clone, Copy, Debug)]
+    pub struct Mini;
+    impl super::IconVariant for Mini {}
+
+    #[derive(Clone, Copy, Debug)]
+    pub struct Micro;
+    impl super::IconVariant for Micro {}
+}
+
+pub mod icon_name {
+    pub use crate::generated_icon_names::*;
 }

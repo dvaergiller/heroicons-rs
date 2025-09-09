@@ -1,5 +1,9 @@
 use proc_macro2::TokenStream;
-use std::{ffi::OsStr, io::Write, path::{Path, PathBuf}};
+use std::{
+    ffi::OsStr,
+    io::Write,
+    path::{Path, PathBuf},
+};
 
 static ICONS_ROOT: &str = "heroicons/optimized";
 
@@ -26,7 +30,7 @@ fn main() {
 mod parser {
     use std::{fs::read_to_string, path::Path};
 
-    use pest::{iterators::Pairs, Parser};
+    use pest::{Parser, iterators::Pairs};
     use pest_derive::Parser;
 
     pub struct Tag {
@@ -52,21 +56,26 @@ mod parser {
 
         let name = svg_identifier.as_str().to_owned();
 
-        let attributes = svg_attrs.into_inner().map(|attr| {
-            assert_eq!(attr.as_rule(), Rule::attribute);
-            let mut pairs = attr.into_inner();
-            let attr_name = pairs.next().unwrap().as_str().to_owned();
-            let attr_value = pairs.next()
-                .unwrap()
-                .into_inner()
-                .next()
-                .unwrap()
-                .as_str()
-                .to_owned();
-            (attr_name, attr_value)
-        }).collect::<Vec<(String, String)>>();
+        let attributes = svg_attrs
+            .into_inner()
+            .map(|attr| {
+                assert_eq!(attr.as_rule(), Rule::attribute);
+                let mut pairs = attr.into_inner();
+                let attr_name = pairs.next().unwrap().as_str().to_owned();
+                let attr_value = pairs
+                    .next()
+                    .unwrap()
+                    .into_inner()
+                    .next()
+                    .unwrap()
+                    .as_str()
+                    .to_owned();
+                (attr_name, attr_value)
+            })
+            .collect::<Vec<(String, String)>>();
 
-        let children = svg_children.into_inner()
+        let children = svg_children
+            .into_inner()
             .map(|pair| into_tag(pair.into_inner()))
             .collect();
 
@@ -74,8 +83,7 @@ mod parser {
     }
 
     #[derive(Parser)]
-    #[grammar_inline =
-      r#"
+    #[grammar_inline = r#"
       tag = { "<" ~ PUSH(identifier) ~ attributes ~ children }
       children = { ("/>" ~ DROP) | (">" ~ tag* ~ "</" ~ POP ~ ">") }
       attributes = { attribute* }
@@ -162,12 +170,19 @@ mod icon_names {
     }
 
     pub fn icon_names_code(enum_names: Vec<&String>) -> TokenStream {
-        let names = enum_names.iter().map(|name| format_ident!("{}", name));
-        quote! {
-            #[derive(Clone, Copy, Debug, PartialEq)]
-            pub enum IconName {
-                #(#names),*
+        let names = enum_names.iter().map(|name| {
+            let name_ident = format_ident!("{}", name);
+            quote! {
+                #[derive(Clone, Copy, Debug, PartialEq)]
+                pub struct #name_ident;
+                impl IconName for #name_ident {}
             }
+        });
+
+        quote! {
+            use crate::IconName;
+
+            #(#names)*
         }
     }
 }
@@ -176,7 +191,11 @@ mod from_icon_impl {
     use proc_macro2::TokenStream;
     use quote::{format_ident, quote};
 
-    use crate::{parser::{self, Tag}, write_src_file, IconFile};
+    use crate::{
+        IconFile,
+        parser::{self, Tag},
+        write_src_file,
+    };
 
     const FROM_ICON_IMPL_FILENAME: &str = "src/svg/generated_from_icon_impl.rs";
 
@@ -185,29 +204,15 @@ mod from_icon_impl {
     }
 
     fn tokens(icons: &[IconFile]) -> TokenStream {
-        let case_tokens = icons.iter().map(svg_code);
+        let impl_tokens = icons.iter().map(svg_code);
         quote! {
             /// Generated code. Do not edit.
-            use crate::{Icon, IconName, Variant};
-            use crate::svg::{Svg, SvgChild, Attribute};
+            use crate::Icon;
+            use crate::svg::{Svg, SvgChild, Attribute, IntoSvg};
+            use crate::icon_name::*;
+            use crate::icon_variant::*;
 
-            impl From<Icon> for Svg {
-                fn from(icon: Icon) -> Svg {
-                    (&icon).into()
-                }
-            }
-
-            impl From<&Icon> for Svg {
-                fn from(icon: &Icon) -> Svg {
-                    match (icon.name, icon.variant) {
-                        #(#case_tokens),*,
-                        _ => Svg::from(&Icon {
-                            name: IconName::QuestionMarkCircle,
-                            variant: Variant::Outline,
-                        })
-                    }
-                }
-            }
+            #(#impl_tokens)*
         }
     }
 
@@ -221,11 +226,14 @@ mod from_icon_impl {
         let children = svg_tag.children.into_iter().map(child_code);
 
         quote! {
-            (IconName::#name_ident, Variant::#variant_ident) =>
-                Svg {
-                    attrs: &[#(#attributes),*],
-                    children: &[#(#children),*],
+            impl IntoSvg for Icon<#name_ident, #variant_ident> {
+                fn into_svg(self) -> Svg {
+                    Svg {
+                        attrs: &[#(#attributes),*],
+                        children: &[#(#children),*],
+                    }
                 }
+            }
         }
     }
 

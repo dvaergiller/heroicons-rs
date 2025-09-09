@@ -21,17 +21,17 @@ All icons are available in multiple variants:
 ### Icon Struct
 
 ```rust
-use heroicons::{Icon, IconName, Variant};
+use heroicons::{Icon, icon_name::*, icon_variant::*};
 
 // Create icons with different variants
 let home_icon = Icon {
-    name: IconName::Home,
-    variant: Variant::Outline,
+    name: Home,
+    variant: Outline,
 };
 
 let user_icon = Icon {
-    name: IconName::User,
-    variant: Variant::Solid,
+    name: User,
+    variant: Solid,
 };
 
 // Convert to SVG string
@@ -44,13 +44,13 @@ let svg_string = home_icon.to_string();
 The `hypertext` feature is enabled by default. Use the `<Icon>` component with the `rsx!` macro:
 
 ```rust
-use heroicons::{Icon, IconName, Variant};
+use heroicons::{Icon, icon_name::*, icon_variant::*};
 use hypertext::prelude::*;
 
 let page = rsx! {
     <div>
-        <Icon name=(IconName::Home) variant=(Variant::Outline) />
-        <Icon name=(IconName::User) variant=(Variant::Solid) />
+        <Icon name=(Home) variant=(Outline) />
+        <Icon name=(User) variant=(Solid) />
     </div>
 }.render();
 ```
@@ -58,13 +58,13 @@ let page = rsx! {
 Or with the `maud!` macro:
 
 ```rust
-use heroicons::{Icon, IconName, Variant};
+use heroicons::{Icon, icon_name::*, icon_variant::*};
 use hypertext::prelude::*;
 
 let page = maud! {
     div {
-        Icon name=(IconName::Home) variant=(Variant::Outline);
-        Icon name=(IconName::User) variant=(Variant::Solid);
+        Icon name=(Home) variant=(Outline);
+        Icon name=(User) variant=(Solid);
     }
 }.render();
 ```

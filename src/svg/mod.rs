@@ -8,6 +8,10 @@ pub struct Svg {
     pub children: &'static [SvgChild],
 }
 
+pub trait IntoSvg {
+    fn into_svg(self) -> Svg;
+}
+
 impl Display for Svg {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         let mut output = "<svg".to_string();

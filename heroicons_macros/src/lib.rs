@@ -14,7 +14,7 @@ pub fn icons_in_path(path_tokens: TokenStream) -> TokenStream {
         let icon_name_ident = format_ident!("{icon_name}");
         let path_str = path.as_os_str().to_str();
         quote! {
-            (IconName::#icon_name_ident, #path_str)
+            (Icon{ name: #icon_name_ident, variant: Outline }, #path_str)
         }
     });
 
@@ -22,6 +22,33 @@ pub fn icons_in_path(path_tokens: TokenStream) -> TokenStream {
         &[
             #(#icon_tokens),*
         ]
+    }.into()
+}
+
+#[proc_macro]
+pub fn for_each_icon(tokens: TokenStream) -> TokenStream {
+    let mut tokens_iter = tokens.into_iter();
+    let path_tokens = tokens_iter.next().unwrap().into();
+    let _ = tokens_iter.next();
+    let callback_tokens = tokens_iter.collect();
+
+    let path = parse_macro_input!(path_tokens as syn::LitStr).value();
+    let callback = parse_macro_input!(callback_tokens as syn::ExprClosure);
+    let svg_files = svg_files_in_path(&path);
+
+    let icon_tokens = svg_files.map(|path| {
+        let icon_name = path_to_icon_name(&path);
+        let icon_name_ident = format_ident!("{icon_name}");
+        let path_str = path.as_os_str().to_str();
+
+        quote! {
+            let callback = #callback;
+            callback(#icon_name_ident, #path_str);
+        }
+    });
+
+    quote! {
+        #(#icon_tokens)*
     }.into()
 }
 
