@@ -24,11 +24,12 @@ where
 }
 
 fn format_attr(&Attribute(name, val): &Attribute, buf_str: &mut String) {
-    buf_str.push_str(&format!(" {name}=\"{val}\""));
+    [" ", name, "=\"", val, "\""].iter().for_each(|s| buf_str.push_str(s));
 }
 
 fn format_child(child: &SvgChild, buf_str: &mut String) {
-    buf_str.push_str(&format!("<{}", child.tag_name));
+    buf_str.push('<');
+    buf_str.push_str(child.tag_name);
     child.attrs.iter().for_each(|attr| format_attr(attr, buf_str));
     buf_str.push_str(" />");
 }
