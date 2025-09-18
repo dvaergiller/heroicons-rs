@@ -1,6 +1,6 @@
 use crate::{
     Icon, IconName, IconVariant,
-    svg::{IntoSvg, Svg},
+    svg::{Svg, ToSvg},
 };
 use hypertext::{Buffer, Renderable};
 
@@ -10,12 +10,12 @@ impl<Name, Variant> Renderable for Icon<Name, Variant>
 where
     Name: IconName + Copy,
     Variant: IconVariant + Copy,
-    Self: IntoSvg,
+    Self: ToSvg,
 {
     fn render_to(&self, buffer: &mut Buffer) {
-        let icon_svg: Svg = (*self).into_svg();
+        let icon_svg: Svg = (*self).to_svg();
         let segments = icon_svg.segments();
-        let mut buf_str = buffer.dangerously_get_string();
-        segments.render_to(&mut buf_str);
+        let buf_str = buffer.dangerously_get_string();
+        segments.render_to(buf_str);
     }
 }

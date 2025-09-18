@@ -27,11 +27,13 @@ use heroicons::{Icon, icon_name::*, icon_variant::*};
 let home_icon = Icon {
     name: Home,
     variant: Outline,
+    ..Default::default()
 };
 
 let user_icon = Icon {
     name: User,
     variant: Solid,
+    ..Default::default()
 };
 
 // Convert to SVG string
@@ -49,8 +51,8 @@ use hypertext::prelude::*;
 
 let page = rsx! {
     <div>
-        <Icon name=(Home) variant=(Outline) />
-        <Icon name=(User) variant=(Solid) />
+        <Icon name=(Home) variant=(Outline) ../>
+        <Icon name=(User) variant=(Solid) ../>
     </div>
 }.render();
 ```
@@ -63,8 +65,8 @@ use hypertext::prelude::*;
 
 let page = maud! {
     div {
-        Icon name=(Home) variant=(Outline);
-        Icon name=(User) variant=(Solid);
+        Icon name=(Home) variant=(Outline) ..;
+        Icon name=(User) variant=(Solid) ..;
     }
 }.render();
 ```

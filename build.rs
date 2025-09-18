@@ -173,7 +173,7 @@ mod icon_names {
         let names = enum_names.iter().map(|name| {
             let name_ident = format_ident!("{}", name);
             quote! {
-                #[derive(Clone, Copy, Debug, PartialEq)]
+                #[derive(Clone, Copy, Debug, Default, PartialEq)]
                 pub struct #name_ident;
                 impl IconName for #name_ident {}
             }
@@ -188,8 +188,9 @@ mod icon_names {
 }
 
 mod from_icon_impl {
-    use proc_macro2::TokenStream;
+    use proc_macro2::{Span, TokenStream};
     use quote::{format_ident, quote};
+    use syn::Ident;
 
     use crate::{
         IconFile,
@@ -199,19 +200,43 @@ mod from_icon_impl {
 
     const FROM_ICON_IMPL_FILENAME: &str = "src/svg/generated_from_icon_impl.rs";
 
+    const COMMON_ATTRS: &[(&str, &str, &str)] = &[
+        ("XMLNS", "xmlns", "http://www.w3.org/2000/svg"),
+        ("FILL_CURRENT", "fill", "currentColor"),
+        ("FILL_NONE", "fill", "none"),
+        ("STROKE_CURRENT", "stroke", "currentColor"),
+        ("ARIA_HIDDEN", "aria-hidden", "true"),
+        ("DATA_SLOT", "data-slot", "icon"),
+        ("VIEWBOX_24", "viewBox", "0 0 24 24"),
+        ("VIEWBOX_20", "viewBox", "0 0 20 20"),
+        ("VIEWBOX_16", "viewBox", "0 0 16 16"),
+        ("FILL_EVENODD", "fill-rule", "evenodd"),
+        ("CLIP_EVENODD", "clip-rule", "evenodd"),
+    ];
+
     pub fn generate(icons: &[IconFile]) {
         write_src_file(tokens(icons), FROM_ICON_IMPL_FILENAME);
     }
 
     fn tokens(icons: &[IconFile]) -> TokenStream {
         let impl_tokens = icons.iter().map(svg_code);
+        let common_attr_tokens =
+            COMMON_ATTRS.iter().map(|(name, attr, value)| {
+                let name_ident = Ident::new(name, Span::call_site());
+                quote! {
+                    const #name_ident: Attribute<'static> =
+                        Attribute(#attr, #value);
+                }
+            });
+
         quote! {
             /// Generated code. Do not edit.
             use crate::Icon;
-            use crate::svg::{Svg, SvgChild, Attribute, IntoSvg};
+            use crate::svg::{Svg, SvgChild, Attribute, ToSvg};
             use crate::icon_name::*;
             use crate::icon_variant::*;
-
+            use super::from_icon_impl_util::*;
+            #(#common_attr_tokens)*
             #(#impl_tokens)*
         }
     }
@@ -226,10 +251,17 @@ mod from_icon_impl {
         let children = svg_tag.children.into_iter().map(child_code);
 
         quote! {
-            impl IntoSvg for Icon<#name_ident, #variant_ident> {
-                fn into_svg(self) -> Svg {
+            impl ToSvg for Icon<#name_ident, #variant_ident> {
+                fn to_svg<'a>(&'a self) -> Svg<'a> {
+                    let dynamic_attrs = optional_attrs(&[
+                        ("id", self.id),
+                        ("class", self.class)
+                    ]);
                     Svg {
-                        attrs: &[#(#attributes),*],
+                        dynamic_attrs,
+                        static_attrs: &[
+                            #(#attributes),*
+                        ],
                         children: &[#(#children),*],
                     }
                 }
@@ -243,15 +275,28 @@ mod from_icon_impl {
         Some(quote! {
             SvgChild {
                 tag_name: #tag_name,
-                attrs: &[#(#attrs),*],
+                attrs: &[
+                    #(#attrs),*
+                ],
 
             }
         })
     }
 
     fn attr_code((attribute, value): (String, String)) -> TokenStream {
-        quote! {
-            Attribute(#attribute, #value)
+        let common_attr = COMMON_ATTRS
+            .iter()
+            .find(|(_, attr, val)| attr == &attribute && val == &value);
+        match common_attr {
+            Some((name, _, _)) => {
+                let ident = Ident::new(name, Span::call_site());
+                quote! {
+                    #ident
+                }
+            }
+            None => quote! {
+                Attribute(#attribute, #value)
+            },
         }
     }
 }
