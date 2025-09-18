@@ -235,7 +235,6 @@ mod from_icon_impl {
             use crate::svg::{Svg, SvgChild, Attribute, ToSvg};
             use crate::icon_name::*;
             use crate::icon_variant::*;
-            use super::from_icon_impl_util::*;
             #(#common_attr_tokens)*
             #(#impl_tokens)*
         }
@@ -253,15 +252,15 @@ mod from_icon_impl {
         quote! {
             impl ToSvg for Icon<#name_ident, #variant_ident> {
                 fn to_svg<'a>(&'a self) -> Svg<'a> {
-                    let dynamic_attrs = optional_attrs(&[
-                        ("id", self.id),
-                        ("class", self.class)
-                    ]);
+                    let mut attrs = vec![#(#attributes),*];
+                    if !self.id.is_empty() {
+                        attrs.push(Attribute("id", self.id))
+                    }
+                    if !self.class.is_empty() {
+                        attrs.push(Attribute("class", self.class))
+                    }
                     Svg {
-                        dynamic_attrs,
-                        static_attrs: &[
-                            #(#attributes),*
-                        ],
+                        attrs,
                         children: &[#(#children),*],
                     }
                 }

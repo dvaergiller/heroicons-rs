@@ -15,8 +15,8 @@ pub use crate::svg::ToSvg;
 pub struct Icon<Name: IconName, Variant: IconVariant> {
     pub name: Name,
     pub variant: Variant,
-    pub id: Option<&'static str>,
-    pub class: Option<&'static str>,
+    pub id: &'static str,
+    pub class: &'static str,
 }
 
 impl<Name, Variant> Display for Icon<Name, Variant>

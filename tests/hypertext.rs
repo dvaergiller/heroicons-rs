@@ -83,7 +83,7 @@ mod hypertext_tests {
     #[test]
     fn test_id_attribute_can_be_added() {
         let mut with_id = rsx! {
-            <Icon id=(Some("some-id")) name=(AcademicCap) variant=(Solid) ../>
+            <Icon id="some-id" name=(AcademicCap) variant=(Solid) ../>
         }
         .render()
         .into_inner();
@@ -101,8 +101,8 @@ mod hypertext_tests {
     fn test_id_and_class_attributes_can_be_added() {
         let mut with_id_and_class = rsx! {
             <Icon
-                id=(Some("some-id"))
-                class=(Some("some-class"))
+                id="some-id"
+                class="some-class"
                 name=(AcademicCap)
                 variant=(Solid) ../>
         }

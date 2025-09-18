@@ -1,12 +1,10 @@
 use std::fmt::{self, Display, Formatter};
 
-mod from_icon_impl_util;
 mod generated_from_icon_impl;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Svg<'a> {
-    pub dynamic_attrs: Vec<Attribute<'a>>,
-    pub static_attrs: &'static [Attribute<'static>],
+    pub attrs: Vec<Attribute<'a>>,
     pub children: &'static [SvgChild],
 }
 
@@ -14,14 +12,9 @@ impl<'a> Svg<'a> {
     pub fn segments(&'a self) -> SvgSegments<'a> {
         let mut segments = SvgSegments::new();
         segments.push("<svg");
-        self.dynamic_attrs
+        self.attrs
             .iter()
             .for_each(|attr| attr.push_segments(&mut segments));
-
-        self.static_attrs
-            .iter()
-            .for_each(|attr| attr.push_segments(&mut segments));
-
         segments.push(">");
         self.children.iter().for_each(|ch| ch.push_segments(&mut segments));
         segments.push("</svg>");
