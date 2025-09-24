@@ -14,11 +14,6 @@ struct IconFile {
 }
 
 fn main() {
-    std::process::Command::new("git")
-        .args(["submodule", "update"])
-        .output()
-        .unwrap();
-
     let icon_files: Vec<IconFile> = svg_files().map(to_svg_file).collect();
     icon_names::generate(&icon_files);
     from_icon_impl::generate(&icon_files);
