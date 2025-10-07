@@ -1,6 +1,6 @@
 [![Rust](https://github.com/dvaergiller/heroicons-rs/actions/workflows/rust_build_test.yml/badge.svg)](https://github.com/dvaergiller/heroicons-rs/actions/workflows/rust_build_test.yml)
-![docs.rs](https://img.shields.io/docsrs/heroicons?label=docs.rs)
-![Crates.io Version](https://img.shields.io/crates/v/heroicons)
+[![docs.rs](https://img.shields.io/docsrs/heroicons?label=docs.rs)](https://docs.rs/heroicons)
+[![Crates.io Version](https://img.shields.io/crates/v/heroicons)](https://crates.io/crates/heroicons)
 
 # Heroicons for Rust
 
