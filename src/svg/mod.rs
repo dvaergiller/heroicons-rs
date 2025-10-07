@@ -1,7 +1,5 @@
 use std::fmt::{self, Display, Formatter};
 
-mod generated_from_icon_impl;
-
 #[derive(Clone, Debug, PartialEq)]
 pub struct Svg<'a> {
     pub attrs: Vec<Attribute<'a>>,
@@ -91,3 +89,5 @@ impl<'a> Attribute<'a> {
         segments.push_all([" ", name, "=\"", value, "\""]);
     }
 }
+
+include!(concat!(env!("OUT_DIR"), "/generated_from_icon_impl.rs"));

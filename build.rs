@@ -144,7 +144,11 @@ fn path_to_icon_name(path: &Path) -> String {
 fn write_src_file(tokens: TokenStream, filename: &str) {
     let syntax_tree = syn::parse_file(&tokens.to_string()).unwrap();
     let formatted = prettyplease::unparse(&syntax_tree);
-    let mut output_file = std::fs::File::create(filename).unwrap();
+
+    let out_dir = std::env::var_os("OUT_DIR").unwrap();
+    let out_filename = Path::new(&out_dir).join(filename);
+    println!("{}", out_filename.display());
+    let mut output_file = std::fs::File::create(out_filename).unwrap();
     output_file.write_all(formatted.as_bytes()).unwrap();
 }
 
@@ -154,14 +158,13 @@ mod icon_names {
 
     use crate::{IconFile, write_src_file};
 
-    const NAMES_FILENAME: &str = "src/generated_icon_names.rs";
-
     pub fn generate(icons: &[IconFile]) {
         let mut names =
             icons.iter().map(|icon| &icon.name).collect::<Vec<&String>>();
         names.sort();
         names.dedup();
-        write_src_file(icon_names_code(names), NAMES_FILENAME);
+
+        write_src_file(icon_names_code(names), "generated_icon_names.rs");
     }
 
     pub fn icon_names_code(enum_names: Vec<&String>) -> TokenStream {
@@ -193,8 +196,6 @@ mod from_icon_impl {
         write_src_file,
     };
 
-    const FROM_ICON_IMPL_FILENAME: &str = "src/svg/generated_from_icon_impl.rs";
-
     const COMMON_ATTRS: &[(&str, &str, &str)] = &[
         ("XMLNS", "xmlns", "http://www.w3.org/2000/svg"),
         ("FILL_CURRENT", "fill", "currentColor"),
@@ -210,7 +211,7 @@ mod from_icon_impl {
     ];
 
     pub fn generate(icons: &[IconFile]) {
-        write_src_file(tokens(icons), FROM_ICON_IMPL_FILENAME);
+        write_src_file(tokens(icons), "generated_from_icon_impl.rs");
     }
 
     fn tokens(icons: &[IconFile]) -> TokenStream {
@@ -227,7 +228,6 @@ mod from_icon_impl {
         quote! {
             /// Generated code. Do not edit.
             use crate::Icon;
-            use crate::svg::{Svg, SvgChild, Attribute, ToSvg};
             use crate::icon_name::*;
             use crate::icon_variant::*;
             #(#common_attr_tokens)*

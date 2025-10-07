@@ -1,7 +1,6 @@
 #![doc = include_str!("../README.md")]
 #![feature(doc_cfg)]
 
-mod generated_icon_names;
 use std::fmt::{Display, Formatter};
 
 #[cfg(feature = "hypertext")]
@@ -52,5 +51,5 @@ pub mod icon_variant {
 }
 
 pub mod icon_name {
-    pub use crate::generated_icon_names::*;
+    include!(concat!(env!("OUT_DIR"), "/generated_icon_names.rs"));
 }
