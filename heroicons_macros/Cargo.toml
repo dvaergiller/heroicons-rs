@@ -1,5 +1,6 @@
 [package]
 name = "heroicons_macros"
+description = "Build and test helper macros for the heroicons crate"
 version = "0.1.0"
 edition = "2024"
 license = "MIT"
