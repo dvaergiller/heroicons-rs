@@ -1,4 +1,4 @@
-name: Rust
+name: Rust build, lint, format, test
 
 on:
   push:
@@ -17,6 +17,10 @@ jobs:
       with:
         submodules: true
     - name: Build
-      run: cargo build --verbose
+      run: cargo build
+    - name: Run fmt
+      run: cargo fmt --check
+    - name: Run clippy
+      run: cargo clippy -- -Dwarnings
     - name: Run tests
-      run: cargo test --verbose
+      run: cargo test
