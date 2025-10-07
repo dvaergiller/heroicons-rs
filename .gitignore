@@ -1,4 +1,5 @@
 /target
 /src/generated_icon_names.rs
 /src/svg/generated_from_icon_impl.rs
+Cargo.lock
 
