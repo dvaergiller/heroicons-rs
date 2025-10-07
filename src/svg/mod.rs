@@ -10,9 +10,7 @@ impl<'a> Svg<'a> {
     pub fn segments(&'a self) -> SvgSegments<'a> {
         let mut segments = SvgSegments::new();
         segments.push("<svg");
-        self.attrs
-            .iter()
-            .for_each(|attr| attr.push_segments(&mut segments));
+        self.attrs.iter().for_each(|attr| attr.push_segments(&mut segments));
         segments.push(">");
         self.children.iter().for_each(|ch| ch.push_segments(&mut segments));
         segments.push("</svg>");
