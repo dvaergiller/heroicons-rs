@@ -2,6 +2,7 @@
 name = "heroicons"
 version = "0.1.0"
 edition = "2024"
+license = "MIT"
 
 [dependencies]
 hypertext = { version = "~0.12.1", optional = true }
