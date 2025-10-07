@@ -5,7 +5,7 @@ authors = ["Mattias Jansson <mattias.jansson@adabeat.com>"]
 version = "0.1.0"
 edition = "2024"
 license = "MIT"
-documentatation = "https://docs.rs/heroicons"
+documentation = "https://docs.rs/heroicons"
 repository = "https://github.com/dvaergiller/heroicons-rs"
 homepage = "https://github.com/dvaergiller/heroicons-rs"
 
@@ -23,7 +23,7 @@ quote = { version = "1.0.40", default-features = false }
 syn = { version = "2.0.106", default-features = false }
 
 [dev-dependencies]
-heroicons_macros = { path = "heroicons_macros" }
+heroicons_macros = { version = "0.1.0", path = "heroicons_macros" }
 hypertext = { version = ">=0.12.1", default-features = false }
 regex = { version = "1.11.2", default-features = false, features = ["unicode-perl"] }
 syn = { version = "2.0.106", default-features = false }
