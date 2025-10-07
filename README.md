@@ -1,3 +1,5 @@
+[![Rust](https://github.com/dvaergiller/heroicons-rs/actions/workflows/rust_build_test.yml/badge.svg)](https://github.com/dvaergiller/heroicons-rs/actions/workflows/rust_build_test.yml)
+
 # Heroicons for Rust
 
 A Rust crate providing access to the beautiful hand-crafted SVG icons from
