@@ -1,4 +1,5 @@
 [![Rust](https://github.com/dvaergiller/heroicons-rs/actions/workflows/rust_build_test.yml/badge.svg)](https://github.com/dvaergiller/heroicons-rs/actions/workflows/rust_build_test.yml)
+![docs.rs](https://img.shields.io/docsrs/heroicons?label=docs.rs)
 
 # Heroicons for Rust
 
