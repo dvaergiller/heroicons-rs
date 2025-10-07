@@ -14,8 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Git Submodule Update
-      run: git submodule update
+      with:
+        submodules: true
     - name: Build
       run: cargo build --verbose
     - name: Run tests
