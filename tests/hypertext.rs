@@ -1,4 +1,3 @@
-#![feature(string_remove_matches)]
 mod test_utils;
 
 #[cfg(feature = "hypertext")]
@@ -93,13 +92,13 @@ mod hypertext_tests {
         .render()
         .into_inner();
         assert_ne!(with_id, without_id);
-        with_id.remove_matches(" id=\"some-id\"");
-        assert_eq!(with_id, without_id);
+        let id_removed: String = with_id.split(" id=\"some-id\"").collect();
+        assert_eq!(id_removed, without_id);
     }
 
     #[test]
     fn test_id_and_class_attributes_can_be_added() {
-        let mut with_id_and_class = rsx! {
+        let with_id_and_class = rsx! {
             <Icon
                 id="some-id"
                 class="some-class"
@@ -116,13 +115,15 @@ mod hypertext_tests {
 
         // Not equal yet, still has those
         assert_ne!(with_id_and_class, without_id_or_class);
-        with_id_and_class.remove_matches(" id=\"some-id\"");
+        let id_removed: String =
+            with_id_and_class.split(" id=\"some-id\"").collect();
 
         // Still not equal: class remains
-        assert_ne!(with_id_and_class, without_id_or_class);
-        with_id_and_class.remove_matches(" class=\"some-class\"");
+        assert_ne!(id_removed, without_id_or_class);
+        let id_and_class_removed: String =
+            id_removed.split(" class=\"some-class\"").collect();
 
-        assert_eq!(with_id_and_class, without_id_or_class);
+        assert_eq!(id_and_class_removed, without_id_or_class);
     }
 }
 

@@ -1,5 +1,4 @@
 #![doc = include_str!("../README.md")]
-#![feature(doc_cfg)]
 
 use std::fmt::{Display, Formatter};
 
