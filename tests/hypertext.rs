@@ -81,7 +81,7 @@ mod hypertext_tests {
 
     #[test]
     fn test_id_attribute_can_be_added() {
-        let mut with_id = rsx! {
+        let with_id = rsx! {
             <Icon id="some-id" name=(AcademicCap) variant=(Solid) ../>
         }
         .render()
