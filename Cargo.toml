@@ -1,8 +1,14 @@
 [package]
 name = "heroicons"
+description = "Easily include Heroicons SVGs in Rust"
+authors = ["Mattias Jansson <mattias.jansson@adabeat.com>"]
 version = "0.1.0"
 edition = "2024"
 license = "MIT"
+documentatation = "https://docs.rs/heroicons"
+repository = "https://github.com/dvaergiller/heroicons-rs"
+homepage = "https://github.com/dvaergiller/heroicons-rs"
+
 
 [dependencies]
 hypertext = { version = "~0.12.1", optional = true }
