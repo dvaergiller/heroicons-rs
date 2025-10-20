@@ -1,4 +1,4 @@
-name: Rust build, lint, format, test
+name: Build, lint, test
 
 on:
   push:
