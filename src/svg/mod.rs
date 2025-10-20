@@ -13,11 +13,11 @@ impl<'a> Svg<'a> {
         buffer
     }
 
-    pub fn render_to(&self, mut buffer: &mut String) {
+    pub fn render_to(&self, buffer: &mut String) {
         buffer.push_str("<svg");
-        self.attrs.iter().for_each(|attr| attr.push_segments(&mut buffer));
-        buffer.push_str(">");
-        self.children.iter().for_each(|ch| ch.push_segments(&mut buffer));
+        self.attrs.iter().for_each(|attr| attr.push_segments(buffer));
+        buffer.push('>');
+        self.children.iter().for_each(|ch| ch.push_segments(buffer));
         buffer.push_str("</svg>");
     }
 }
@@ -39,8 +39,8 @@ pub struct SvgChild {
 }
 
 impl SvgChild {
-    pub fn push_segments<'a>(&'a self, buffer: &mut String) {
-        buffer.push_str("<");
+    pub fn push_segments(&self, buffer: &mut String) {
+        buffer.push('<');
         buffer.push_str(self.tag_name);
         self.attrs.iter().for_each(|attr| attr.push_segments(buffer));
         buffer.push_str("/>");
@@ -54,18 +54,19 @@ impl<'a> Attribute<'a> {
     pub fn push_segments(&self, buffer: &mut String) {
         let &Attribute(name, value) = self;
 
-        buffer.push_str(" ");
+        buffer.push(' ');
         buffer.push_str(name);
         buffer.push_str("=\"");
 
         if name == "id" || name == "class" {
-            html_escape::encode_double_quoted_attribute_to_string(value, buffer);
-        }
-        else {
+            html_escape::encode_double_quoted_attribute_to_string(
+                value, buffer,
+            );
+        } else {
             buffer.push_str(value);
         }
 
-        buffer.push_str("\"");
+        buffer.push('\"');
     }
 }
 
