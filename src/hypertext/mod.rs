@@ -6,7 +6,7 @@ use hypertext::{Buffer, Renderable};
 
 mod hypertext_elements;
 
-impl<Name, Variant> Renderable for Icon<Name, Variant>
+impl<Name, Variant> Renderable for Icon<'_, Name, Variant>
 where
     Name: IconName + Copy,
     Variant: IconVariant + Copy,

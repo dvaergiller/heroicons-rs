@@ -245,7 +245,7 @@ mod from_icon_impl {
         let children = svg_tag.children.into_iter().map(child_code);
 
         quote! {
-            impl ToSvg for Icon<#name_ident, #variant_ident> {
+            impl ToSvg for Icon<'_, #name_ident, #variant_ident> {
                 fn to_svg<'a>(&'a self) -> Svg<'a> {
                     let mut attrs = vec![#(#attributes),*];
                     if !self.id.is_empty() {

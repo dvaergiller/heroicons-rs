@@ -10,16 +10,16 @@ pub(crate) mod svg;
 pub use crate::svg::ToSvg;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
-pub struct Icon<Name: IconName, Variant: IconVariant> {
+pub struct Icon<'a, Name: IconName, Variant: IconVariant> {
     pub name: Name,
     pub variant: Variant,
-    pub id: &'static str,
-    pub class: &'static str,
+    pub id: &'a str,
+    pub class: &'a str,
 }
 
-impl<Name, Variant> Display for Icon<Name, Variant>
+impl<'a, Name, Variant> Display for Icon<'a, Name, Variant>
 where
-    Icon<Name, Variant>: svg::ToSvg,
+    Icon<'a, Name, Variant>: svg::ToSvg,
     Name: IconName + Copy,
     Variant: IconVariant + Copy,
 {
