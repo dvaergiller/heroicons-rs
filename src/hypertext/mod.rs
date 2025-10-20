@@ -14,8 +14,7 @@ where
 {
     fn render_to(&self, buffer: &mut Buffer) {
         let icon_svg: Svg = (*self).to_svg();
-        let segments = icon_svg.segments();
         let buf_str = buffer.dangerously_get_string();
-        segments.render_to(buf_str);
+        icon_svg.render_to(buf_str);
     }
 }

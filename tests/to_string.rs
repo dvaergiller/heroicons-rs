@@ -53,3 +53,17 @@ fn test_micro_icons_are_equivalent_to_source() {
         test_utils::check_equivalent_to_source(icon.to_string(), file);
     });
 }
+
+#[test]
+fn test_id_field_script_injection() {
+    let icon = Icon {
+        id: "\"></svg><script>alert(\"hickedy hackedy\");</script><svg id=\"",
+        name: Home,
+        variant: Outline,
+        ..Default::default()
+    };
+    assert_eq!(
+        icon.to_string(),
+        "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke-width=\"1.5\" stroke=\"currentColor\" aria-hidden=\"true\" data-slot=\"icon\" id=\"&quot;&gt;&lt;/svg&gt;&lt;script&gt;alert(&quot;hickedy hackedy&quot;);&lt;/script&gt;&lt;svg id=&quot;\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25\"/></svg>"
+    );
+}

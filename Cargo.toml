@@ -11,6 +11,7 @@ homepage = "https://github.com/dvaergiller/heroicons-rs"
 
 
 [dependencies]
+html-escape = "0.2.13"
 hypertext = { version = "~0.12.1", optional = true }
 
 [build-dependencies]
